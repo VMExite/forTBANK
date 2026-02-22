@@ -19,6 +19,7 @@ buildNumber.properties
 !**/src/test/**/target/
 
 ### IntelliJ IDEA ###
+*/.idea/*
 .idea/*
 !.idea/codeStyles
 !.idea/externalDependencies.xml
@@ -51,3 +52,7 @@ build/
 
 ### Mac OS ###
 .DS_Store
+
+### ENVIROMENT ##
+.env
+.env.*

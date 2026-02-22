@@ -4,6 +4,10 @@ server:
 spring:
   application:
     name: bot
+  config:
+    import: file:.env[.properties]
+  messages:
+    encoding: UTF-8
 
 app:
   telegram:
@@ -11,3 +15,13 @@ app:
     token: ${TELEGRAM_TOKEN} # Use env variable. DO NOT KEEP TOKEN HERE
     update-listener-sleep: 1s
     debug: false
+  message:
+    basename: classpath:messages
+
+
+logging:
+  level:
+    root: info
+  structured:
+    format:
+      console: ecs
