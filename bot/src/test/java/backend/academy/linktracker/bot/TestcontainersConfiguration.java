@@ -1,13 +1,13 @@
-//package backend.academy.linktracker.bot;
+// package backend.academy.linktracker.bot;
 //
-//import com.redis.testcontainers.RedisContainer;
-//import org.springframework.boot.test.context.TestConfiguration;
-//import org.testcontainers.kafka.KafkaContainer;
-//import org.testcontainers.postgresql.PostgreSQLContainer;
-//import org.testcontainers.utility.DockerImageName;
+// import com.redis.testcontainers.RedisContainer;
+// import org.springframework.boot.test.context.TestConfiguration;
+// import org.testcontainers.kafka.KafkaContainer;
+// import org.testcontainers.postgresql.PostgreSQLContainer;
+// import org.testcontainers.utility.DockerImageName;
 //
-//@TestConfiguration(proxyBeanMethods = false)
-//class TestcontainersConfiguration {
+// @TestConfiguration(proxyBeanMethods = false)
+// class TestcontainersConfiguration {
 //
 //    // Uncomment to start PostgreSQLContainer
 //    // @Bean
@@ -29,4 +29,4 @@
 //    KafkaContainer kafkaContainer() {
 //        return new KafkaContainer(DockerImageName.parse("apache/kafka-native:4.1.1"));
 //    }
-//}
+// }

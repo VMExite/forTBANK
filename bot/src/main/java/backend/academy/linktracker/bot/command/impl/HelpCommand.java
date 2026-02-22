@@ -39,5 +39,4 @@ public class HelpCommand implements Command {
     public String getDescriptionKey() {
         return CommandName.HELP.getDescriptionKey();
     }
-
 }

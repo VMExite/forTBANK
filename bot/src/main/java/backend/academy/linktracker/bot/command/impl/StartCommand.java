@@ -40,4 +40,3 @@ public class StartCommand implements Command {
         return CommandName.START.getDescriptionKey();
     }
 }
-

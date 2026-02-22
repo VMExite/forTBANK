@@ -4,10 +4,10 @@ import backend.academy.linktracker.bot.service.LocalisationService;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
+import java.util.Collection;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import java.util.Collection;
 
 @Slf4j
 @Component
@@ -25,10 +25,11 @@ public class CommandHandler {
         for (Command command : commands) {
             if (command.canHandle(update)) {
                 command.handle(update);
-                log.info("command_received command={} chatId={} locale={}",
-                    command.getCommandName(),
-                    update.message().chat().id(),
-                    update.message().from().languageCode());
+                log.info(
+                        "command_received command={} chatId={} locale={}",
+                        command.getCommandName(),
+                        update.message().chat().id(),
+                        update.message().from().languageCode());
                 return;
             }
         }

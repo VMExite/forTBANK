@@ -10,5 +10,6 @@ public interface Command {
     void handle(Update update);
 
     String getCommandName();
+
     String getDescriptionKey();
 }

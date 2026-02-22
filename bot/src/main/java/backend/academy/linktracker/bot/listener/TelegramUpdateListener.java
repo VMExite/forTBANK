@@ -17,14 +17,11 @@ public class TelegramUpdateListener {
     @PostConstruct
     public void init() {
 
-        bot.setUpdatesListener(
-            updates -> {
-                for (Update update: updates) {
-                    handler.handle(update);
-                }
-                return UpdatesListener.CONFIRMED_UPDATES_ALL;
+        bot.setUpdatesListener(updates -> {
+            for (Update update : updates) {
+                handler.handle(update);
             }
-        );
-
+            return UpdatesListener.CONFIRMED_UPDATES_ALL;
+        });
     }
 }

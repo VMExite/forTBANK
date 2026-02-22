@@ -1,4 +1,11 @@
 package backend.academy.linktracker.bot.command.impl;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import backend.academy.linktracker.bot.command.CommandName;
 import backend.academy.linktracker.bot.service.LocalisationService;
 import com.pengrad.telegrambot.TelegramBot;
@@ -6,21 +13,12 @@ import com.pengrad.telegrambot.model.Chat;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.User;
+import java.util.Locale;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.stubbing.Answer;
-import org.springframework.boot.test.context.SpringBootTest;
-
-import java.util.Locale;
-
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class StartCommandTest {
@@ -64,14 +62,12 @@ class StartCommandTest {
         when(messageMock.from()).thenReturn(userMock);
         when(userMock.languageCode()).thenReturn(lang);
 
-        when(localisationService.getMessage("bot.start", lang))
-            .thenReturn(expectedMessage);
+        when(localisationService.getMessage("bot.start", lang)).thenReturn(expectedMessage);
         startCommand.handle(updateMock);
 
-        verify(bot).execute(argThat(msg ->
-            msg.getParameters().get("chat_id").equals(chatId) &&
-                msg.getParameters().get("text").equals(expectedMessage)
-        ));
+        verify(bot)
+                .execute(argThat(msg -> msg.getParameters().get("chat_id").equals(chatId)
+                        && msg.getParameters().get("text").equals(expectedMessage)));
 
         verify(localisationService).getMessage("bot.start", lang);
     }

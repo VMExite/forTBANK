@@ -1,12 +1,12 @@
-//package backend.academy.linktracker.bot;
+// package backend.academy.linktracker.bot;
 //
-//import org.springframework.boot.SpringApplication;
+// import org.springframework.boot.SpringApplication;
 //
-//public class TestBotApplication {
+// public class TestBotApplication {
 //
 //    static void main(String[] args) {
 //        SpringApplication.from(BotApplication::main)
 //                .with(TestcontainersConfiguration.class)
 //                .run(args);
 //    }
-//}
+// }
