@@ -18,19 +18,6 @@ public class HashMapLinksRepository implements LinkRepository {
     }
 
     @Override
-    public Optional<Link> findByUrl(String url) {
-        return storage.values()
-            .stream()
-            .filter(link -> link.getUrl().equals(url))
-            .findFirst();
-    }
-
-    @Override
-    public List<Link> findAll() {
-        return storage.values().stream().toList();
-    }
-
-    @Override
     public Link save(Link link) {
         storage.put(link.getId(), link);
         return link;

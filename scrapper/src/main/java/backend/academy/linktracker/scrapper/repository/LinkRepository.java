@@ -6,8 +6,6 @@ import java.util.Optional;
 
 public interface LinkRepository {
     Optional<Link> findById(Long id);
-    Optional<Link> findByUrl(String url);
-    List<Link> findAll();
     Link save(Link link);
     void deleteById(Long id);
 }
