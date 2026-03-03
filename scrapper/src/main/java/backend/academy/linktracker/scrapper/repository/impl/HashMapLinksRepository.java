@@ -37,7 +37,7 @@ public class HashMapLinksRepository implements LinkRepository {
     }
 
     @Override
-    public void delete(Link link) {
-        storage.remove(link.getId());
+    public void deleteById(Long id) {
+        storage.remove(id);
     }
 }

@@ -9,5 +9,5 @@ public interface LinkRepository {
     Optional<Link> findByUrl(String url);
     List<Link> findAll();
     Link save(Link link);
-    void delete(Link link);
+    void deleteById(Long id);
 }

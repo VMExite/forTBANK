@@ -75,7 +75,7 @@ public class LinksService {
             .orElseThrow(LinkNotFoundException::new);
 
         if (link.getChats().isEmpty()) {
-            linkRepository.delete(link);
+            linkRepository.deleteById(link.getId());
         }
 
         chat.removeLink(link);
