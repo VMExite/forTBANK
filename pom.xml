@@ -66,6 +66,7 @@
         <springdoc.version>3.0.1</springdoc.version>
         <wiremock-grpc.version>0.11.0</wiremock-grpc.version>
         <wiremock-spring-boot.version>4.1.0</wiremock-spring-boot.version>
+        <grpc.error-prone-annotations>2.41.0</grpc.error-prone-annotations>
 
         <flatten-maven-plugin.version>1.7.3</flatten-maven-plugin.version>
         <jacoco-maven-plugin.version>0.8.14</jacoco-maven-plugin.version>
@@ -187,6 +188,13 @@
                 <groupId>org.awaitility</groupId>
                 <artifactId>awaitility</artifactId>
                 <version>${awaitility.version}</version>
+            </dependency>
+
+            <!-- RESOLVE gRPC incompatibility of versions problem -->
+            <dependency>
+                <groupId>com.google.errorprone</groupId>
+                <artifactId>error_prone_annotations</artifactId>
+                <version>${grpc.error-prone-annotations}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
