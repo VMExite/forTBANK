@@ -7,15 +7,13 @@ public class RemoveLinkRequestGrpcMapper {
     private RemoveLinkRequestGrpcMapper() {}
 
     public static RemoveLinkRequest fromProto(ScrapperProto.RemoveLinkRequest mapped) {
-        return RemoveLinkRequest.builder()
-            .link(mapped.getLink())
-            .build();
+        return new RemoveLinkRequest(mapped.getLink());
     }
 
     public static ScrapperProto.RemoveLinkRequest toProto(Long tgChatId, RemoveLinkRequest mapped) {
         return ScrapperProto.RemoveLinkRequest.newBuilder()
             .setTgChaId(tgChatId)
-            .setLink(mapped.getLink())
+            .setLink(mapped.link())
             .build();
     }
 }

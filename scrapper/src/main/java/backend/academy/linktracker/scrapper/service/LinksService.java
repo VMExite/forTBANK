@@ -35,15 +35,12 @@ public class LinksService {
             .map(this::mapToResponse)
             .toList();
 
-        return ListLinkResponse.builder()
-            .links(responses)
-            .size(responses.size())
-            .build();
+        return new ListLinkResponse(responses, responses.size());
     }
 
     public LinkResponse createLink(Long chatId, AddLinkRequest request) throws IllegalArgumentException, ChatNotExistsException, LinkAlreadyTracked {
         validateId(chatId);
-        if (request == null || request.getLink() == null || !request.getLink().isEmpty()) {
+        if (request == null || request.link() == null || !request.link().isEmpty()) {
             throw new IllegalArgumentException();
         }
 
@@ -52,16 +49,16 @@ public class LinksService {
 
         boolean alreadyTracked = chat.getLinks()
             .stream()
-            .anyMatch(link -> link.getUrl().equals(request.getLink()));
+            .anyMatch(link -> link.getUrl().equals(request.link()));
         if (alreadyTracked) {
             throw new LinkAlreadyTracked();
         }
 
         Link link = Link.builder()
             .id(primaryKeyId.getAndIncrement())
-            .url(request.getLink())
-            .tags(request.getTags())
-            .filters(request.getFilters())
+            .url(request.link())
+            .tags(request.tags())
+            .filters(request.filters())
             .build();
         Link savedLink = linkRepository.save(link);
 
@@ -74,7 +71,7 @@ public class LinksService {
     public LinkResponse removeLink(Long chatId, RemoveLinkRequest request) throws IllegalArgumentException, ChatNotExistsException, LinkNotFoundException {
         validateId(chatId);
 
-        if (request == null || request.getLink() == null || !request.getLink().isEmpty()) {
+        if (request == null || request.link() == null || !request.link().isEmpty()) {
             throw new IllegalArgumentException();
         }
 
@@ -83,7 +80,7 @@ public class LinksService {
 
         Link link = chat.getLinks()
             .stream()
-            .filter(l -> l.getUrl().equals(request.getLink()))
+            .filter(l -> l.getUrl().equals(request.link()))
             .findFirst()
             .orElseThrow(LinkNotFoundException::new);
 
@@ -98,12 +95,7 @@ public class LinksService {
     }
 
     private LinkResponse mapToResponse(Link link) {
-        return LinkResponse.builder()
-            .id(link.getId())
-            .url(link.getUrl())
-            .tags(link.getTags())
-            .filters(link.getFilters())
-            .build();
+        return new LinkResponse(link.getId(), link.getUrl(), link.getTags(), link.getFilters());
     }
 
     private void validateId(Long id) throws IllegalArgumentException {

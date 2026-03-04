@@ -7,26 +7,24 @@ public class ListLinkResponseGrpcMapper {
     private ListLinkResponseGrpcMapper() {}
 
     public static ListLinkResponse fromProto(ScrapperProto.ListLinkResponse mapped) {
-        return ListLinkResponse.builder()
-            .links(
-                mapped.getLinksList()
-                    .stream()
-                    .map(LinkResponseGrpcMapper::fromProto)
-                    .toList()
-            )
-            .size(mapped.getSize())
-            .build();
+        return new ListLinkResponse(
+            mapped.getLinksList()
+                .stream()
+                .map(LinkResponseGrpcMapper::fromProto)
+                .toList(),
+            mapped.getSize()
+        );
     }
 
     public static ScrapperProto.ListLinkResponse toProto(ListLinkResponse mapped) {
         return ScrapperProto.ListLinkResponse.newBuilder()
             .addAllLinks(
-                mapped.getLinks()
+                mapped.links()
                     .stream()
                     .map(LinkResponseGrpcMapper::toProto)
                     .toList()
             )
-            .setSize(mapped.getSize())
+            .setSize(mapped.size())
             .build();
     }
 }
