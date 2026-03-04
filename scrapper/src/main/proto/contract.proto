@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+option java_package = "backend.academy.linktracker.scrapper";
+option java_outer_classname = "ScrapperProto";
+
+service TgChatService {
+    rpc RegisterChat (RegisterChatRequest) returns (ChatResponse);
+    rpc DeleteChat (DeleteChatRequest) returns (ChatResponse);
+}
+
+service LinkService {
+    rpc GetLinks (GetLinkRequest) returns (ListLinkResponse);
+    rpc CreateLink (AddLinkRequest) returns (LinkResponse);
+    rpc DeleteLink (RemoveLinkRequest) returns (LinkResponse);
+}
+
+message RegisterChatRequest {
+    int64 id = 1;
+}
+message DeleteChatRequest {
+    int64 id = 1;
+}
+message ChatResponse {
+    string message = 1;
+}
+
+message GetLinkRequest {
+    int64 tgChatId = 1;
+}
+message AddLinkRequest {
+    int64 tgChatId = 1;
+    string link = 2;
+    repeated string tags = 3;
+    repeated string filter = 4;
+}
+message RemoveLinkRequest {
+    int64 tgChaId = 1;
+    string link = 2;
+}
+message LinkResponse {
+    int64 id = 1;
+    string url = 2;
+    repeated string tags = 3;
+    repeated string filter = 4;
+}
+message ListLinkResponse {
+    repeated LinkResponse links = 1;
+    int32 size = 2;
+}
