@@ -24,7 +24,9 @@ public class LinksService {
     private final ChatRepository chatRepository;
     private final LinkRepository linkRepository;
 
-    public ListLinkResponse getLinks(Long chatId) throws ChatNotExistsException {
+    public ListLinkResponse getLinks(Long chatId) throws IllegalArgumentException, ChatNotExistsException {
+        validateId(chatId);
+
         Chat chat = chatRepository.findById(chatId)
             .orElseThrow(ChatNotExistsException::new);
 
@@ -39,7 +41,12 @@ public class LinksService {
             .build();
     }
 
-    public LinkResponse createLink(Long chatId, AddLinkRequest request) throws ChatNotExistsException, LinkAlreadyTracked {
+    public LinkResponse createLink(Long chatId, AddLinkRequest request) throws IllegalArgumentException, ChatNotExistsException, LinkAlreadyTracked {
+        validateId(chatId);
+        if (request == null || request.getLink() == null || !request.getLink().isEmpty()) {
+            throw new IllegalArgumentException();
+        }
+
         Chat chat = chatRepository.findById(chatId)
             .orElseThrow(ChatNotExistsException::new);
 
@@ -64,7 +71,13 @@ public class LinksService {
         return mapToResponse(link);
     }
 
-    public LinkResponse removeLink(Long chatId, RemoveLinkRequest request) throws ChatNotExistsException, LinkNotFoundException {
+    public LinkResponse removeLink(Long chatId, RemoveLinkRequest request) throws IllegalArgumentException, ChatNotExistsException, LinkNotFoundException {
+        validateId(chatId);
+
+        if (request == null || request.getLink() == null || !request.getLink().isEmpty()) {
+            throw new IllegalArgumentException();
+        }
+
         Chat chat = chatRepository.findById(chatId)
             .orElseThrow(ChatNotExistsException::new);
 
@@ -91,5 +104,11 @@ public class LinksService {
             .tags(link.getTags())
             .filters(link.getFilters())
             .build();
+    }
+
+    private void validateId(Long id) throws IllegalArgumentException {
+        if (id == null || id < 0) {
+            throw new IllegalArgumentException();
+        }
     }
 }
