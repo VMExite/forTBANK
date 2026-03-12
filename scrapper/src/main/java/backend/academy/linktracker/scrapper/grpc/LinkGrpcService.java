@@ -44,7 +44,7 @@ public class LinkGrpcService extends LinkServiceGrpc.LinkServiceImplBase {
     public void deleteLink(ScrapperProto.RemoveLinkRequest request,
                            StreamObserver<ScrapperProto.LinkResponse> responseObserver) {
         LinkResponse response = linksService.removeLink(
-            request.getTgChaId(),
+            request.getTgChatId(),
             RemoveLinkRequestGrpcMapper.fromProto(request)
         );
         ScrapperProto.LinkResponse grpcResponse = LinkResponseGrpcMapper.toProto(response);

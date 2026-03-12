@@ -11,7 +11,7 @@ public class LinkResponseGrpcMapper {
             mapped.getId(),
             mapped.getUrl(),
             mapped.getTagsList(),
-            mapped.getFilterList()
+            mapped.getFiltersList()
         );
     }
 
@@ -20,7 +20,7 @@ public class LinkResponseGrpcMapper {
             .setId(mapped.id())
             .setUrl(mapped.url())
             .addAllTags(mapped.tags())
-            .addAllFilter(mapped.filters())
+            .addAllFilters(mapped.filters())
             .build();
     }
 }

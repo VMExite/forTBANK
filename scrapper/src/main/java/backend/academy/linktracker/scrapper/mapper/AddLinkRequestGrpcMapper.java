@@ -10,7 +10,7 @@ public class AddLinkRequestGrpcMapper {
         return new AddLinkRequest(
             mapped.getLink(),
             mapped.getTagsList(),
-            mapped.getFilterList()
+            mapped.getFiltersList()
         );
     }
 
@@ -19,7 +19,7 @@ public class AddLinkRequestGrpcMapper {
             .setTgChatId(tgChatId)
             .setLink(mapped.link())
             .addAllTags(mapped.tags())
-            .addAllFilter(mapped.filters())
+            .addAllFilters(mapped.filters())
             .build();
     }
 }
