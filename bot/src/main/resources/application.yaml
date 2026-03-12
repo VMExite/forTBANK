@@ -1,11 +1,14 @@
 server:
   port: 8080
+grpc:
+  server:
+    port: 9091
 
 spring:
   application:
     name: bot
   config:
-    import: file:.env[.properties]
+    import: optional:file:.env[.properties]
   messages:
     encoding: UTF-8
 
@@ -17,6 +20,11 @@ app:
     debug: false
   message:
     basename: classpath:messages
+  scrapper:
+    base-url: "http://localhost:8081"
+    grpc:
+      host: "localhost"
+      port: 9092
 
 
 logging:

@@ -1,13 +1,26 @@
 server:
   port: 8081
+grpc:
+  server:
+    port: 9092
 
 spring:
   application:
     name: scrapper
+    scheduler-interval: PT60S
+  config:
+      import: optional:file:.env[.properties]
 
 app:
   stackoverflow:
     key: ${STACKOVERFLOW_KEY} # Use env variable. DO NOT KEEP TOKEN HERE
     access-token: ${STACKOVERFLOW_ACCESS_KEY} # Use env variable. DO NOT KEEP TOKEN HERE
+    base-url: "https://api.stackexchange.com/2.3"
   github:
     token: ${GITHUB_TOKEN} # Use env variable. DO NOT KEEP TOKEN HERE
+    base-url: "https://api.github.com"
+  bot:
+    base-url: "http://localhost:8080"
+    grpc:
+      host: "localhost"
+      port: 9091
