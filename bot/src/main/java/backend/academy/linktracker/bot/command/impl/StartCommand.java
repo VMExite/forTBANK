@@ -2,8 +2,8 @@ package backend.academy.linktracker.bot.command.impl;
 
 import backend.academy.linktracker.bot.command.Command;
 import backend.academy.linktracker.bot.command.CommandName;
+import backend.academy.linktracker.bot.grpc.ScrapperGrpcClient;
 import backend.academy.linktracker.bot.service.LocalisationService;
-import backend.academy.linktracker.bot.webclient.ScrapperClient;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 public class StartCommand implements Command {
     private final TelegramBot bot;
     private final LocalisationService localisationService;
-    private final ScrapperClient scrapperClient;
+    private final ScrapperGrpcClient scrapperGrpcClient;
 
     @Override
     public boolean canHandle(Update update) {
@@ -30,8 +30,9 @@ public class StartCommand implements Command {
 
         String text = localisationService.getMessage("bot.start", lang);
         try {
-            scrapperClient.registerChat(update.message().chat().id());
-        } catch (Exception ignored) {}
+            scrapperGrpcClient.registerChat(update.message().chat().id());
+        } catch (Exception ignored) {
+        }
         bot.execute(new SendMessage(chatId, text));
     }
 

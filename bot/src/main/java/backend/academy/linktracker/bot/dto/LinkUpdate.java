@@ -6,8 +6,7 @@ import java.util.List;
 import org.hibernate.validator.constraints.URL;
 
 public record LinkUpdate(
-    @NotNull Long id,
-    @NotBlank @URL String url,
-    String description,
-    @NotNull List<@NotNull Long> tgChatIds
-) {}
+        @NotNull Long id,
+        @NotBlank @URL String url,
+        String description,
+        @NotNull List<@NotNull Long> tgChatIds) {}

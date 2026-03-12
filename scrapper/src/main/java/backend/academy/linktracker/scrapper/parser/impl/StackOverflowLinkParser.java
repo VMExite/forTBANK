@@ -3,8 +3,8 @@ package backend.academy.linktracker.scrapper.parser.impl;
 import backend.academy.linktracker.scrapper.dto.ParsedLink;
 import backend.academy.linktracker.scrapper.dto.StackOverflowLink;
 import backend.academy.linktracker.scrapper.parser.LinkParser;
-import org.springframework.stereotype.Component;
 import java.net.URI;
+import org.springframework.stereotype.Component;
 
 @Component
 public class StackOverflowLinkParser implements LinkParser {

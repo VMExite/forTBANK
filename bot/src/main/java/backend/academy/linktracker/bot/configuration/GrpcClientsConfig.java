@@ -16,10 +16,9 @@ public class GrpcClientsConfig {
 
     @Bean
     ManagedChannel scrapperManagedChannel() {
-        return ManagedChannelBuilder
-            .forAddress(scrapperGrpcProperties.getHost(), scrapperGrpcProperties.getPort())
-            .usePlaintext()
-            .build();
+        return ManagedChannelBuilder.forAddress(scrapperGrpcProperties.getHost(), scrapperGrpcProperties.getPort())
+                .usePlaintext()
+                .build();
     }
 
     @Bean

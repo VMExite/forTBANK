@@ -8,8 +8,5 @@ import org.springframework.web.service.annotation.HttpExchange;
 @HttpExchange
 public interface GitHubClient {
     @GetExchange("/repos/{owner}/{repo}")
-    GitHubRepositoryResponse getRepository(
-        @PathVariable String owner,
-        @PathVariable String repo
-    );
+    GitHubRepositoryResponse getRepository(@PathVariable String owner, @PathVariable String repo);
 }

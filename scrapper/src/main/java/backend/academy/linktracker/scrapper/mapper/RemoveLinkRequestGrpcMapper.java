@@ -12,8 +12,8 @@ public class RemoveLinkRequestGrpcMapper {
 
     public static ScrapperProto.RemoveLinkRequest toProto(Long tgChatId, RemoveLinkRequest mapped) {
         return ScrapperProto.RemoveLinkRequest.newBuilder()
-            .setTgChatId(tgChatId)
-            .setLink(mapped.link())
-            .build();
+                .setTgChatId(tgChatId)
+                .setLink(mapped.link())
+                .build();
     }
 }

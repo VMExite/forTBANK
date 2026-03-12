@@ -7,20 +7,15 @@ public class LinkResponseGrpcMapper {
     private LinkResponseGrpcMapper() {}
 
     public static LinkResponse fromProto(ScrapperProto.LinkResponse mapped) {
-        return new LinkResponse(
-            mapped.getId(),
-            mapped.getUrl(),
-            mapped.getTagsList(),
-            mapped.getFiltersList()
-        );
+        return new LinkResponse(mapped.getId(), mapped.getUrl(), mapped.getTagsList(), mapped.getFiltersList());
     }
 
     public static ScrapperProto.LinkResponse toProto(LinkResponse mapped) {
         return ScrapperProto.LinkResponse.newBuilder()
-            .setId(mapped.id())
-            .setUrl(mapped.url())
-            .addAllTags(mapped.tags())
-            .addAllFilters(mapped.filters())
-            .build();
+                .setId(mapped.id())
+                .setUrl(mapped.url())
+                .addAllTags(mapped.tags())
+                .addAllFilters(mapped.filters())
+                .build();
     }
 }

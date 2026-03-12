@@ -1,0 +1,4 @@
+github:
+  base-url: http://localhost:8100
+stackoverflow:
+  base-url: http://localhost:8101

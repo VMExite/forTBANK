@@ -16,9 +16,7 @@ public class RegistrationService {
         if (id == null || id <= 0) {
             throw new IllegalArgumentException("Невалидный идентификатор чата");
         }
-        Chat chat = Chat.builder()
-            .id(id)
-            .build();
+        Chat chat = Chat.builder().id(id).build();
         if (chatRepository.existsById(chat.getId())) {
             throw new ChatAlreadyExistsException();
         }

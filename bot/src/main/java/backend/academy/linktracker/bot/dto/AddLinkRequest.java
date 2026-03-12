@@ -2,8 +2,4 @@ package backend.academy.linktracker.bot.dto;
 
 import java.util.List;
 
-public record AddLinkRequest(
-    String link,
-    List<String> tags,
-    List<String> filters
-) {}
+public record AddLinkRequest(String link, List<String> tags, List<String> filters) {}

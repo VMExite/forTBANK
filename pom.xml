@@ -313,6 +313,11 @@
                         <printFailingErrors>true</printFailingErrors>
                         <linkXRef>false</linkXRef>
                         <outputDirectory>${project.reporting.outputDirectory}/pmd</outputDirectory>
+                        <excludes>
+                            <exclude>**/target/**</exclude>
+                            <exclude>**/generated/**</exclude>
+                            <exclude>**/generated-sources/**</exclude>
+                        </excludes>
                         <rulesets>
                             <ruleset>pmd.xml</ruleset>
                         </rulesets>

@@ -16,11 +16,8 @@ public class WebClientsConfig {
 
     @Bean
     ScrapperClient scrapperClient(RestClient.Builder builder) {
-        RestClient restClient = builder
-            .baseUrl(scrapperProperties.getBaseUrl())
-            .build();
-        HttpServiceProxyFactory factory =
-            HttpServiceProxyFactory.builderFor(RestClientAdapter.create(restClient))
+        RestClient restClient = builder.baseUrl(scrapperProperties.getBaseUrl()).build();
+        HttpServiceProxyFactory factory = HttpServiceProxyFactory.builderFor(RestClientAdapter.create(restClient))
                 .build();
         return factory.createClient(ScrapperClient.class);
     }

@@ -2,7 +2,4 @@ package backend.academy.linktracker.scrapper.dto;
 
 import java.util.List;
 
-public record ListLinkResponse(
-    List<LinkResponse> links,
-    Integer size
-) {}
+public record ListLinkResponse(List<LinkResponse> links, Integer size) {}

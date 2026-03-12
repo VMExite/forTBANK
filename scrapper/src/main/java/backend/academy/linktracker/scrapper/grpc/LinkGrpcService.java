@@ -19,8 +19,8 @@ public class LinkGrpcService extends LinkServiceGrpc.LinkServiceImplBase {
     private final LinksService linksService;
 
     @Override
-    public void getLinks(ScrapperProto.GetLinkRequest request,
-                         StreamObserver<ScrapperProto.ListLinkResponse> responseObserver) {
+    public void getLinks(
+            ScrapperProto.GetLinkRequest request, StreamObserver<ScrapperProto.ListLinkResponse> responseObserver) {
         ListLinkResponse response = linksService.getLinks(request.getTgChatId());
         ScrapperProto.ListLinkResponse grpcResponse = ListLinkResponseGrpcMapper.toProto(response);
 
@@ -29,24 +29,20 @@ public class LinkGrpcService extends LinkServiceGrpc.LinkServiceImplBase {
     }
 
     @Override
-    public void createLink(ScrapperProto.AddLinkRequest request,
-                           StreamObserver<ScrapperProto.LinkResponse> responseObserver) {
-        LinkResponse response = linksService.createLink(
-            request.getTgChatId(),
-            AddLinkRequestGrpcMapper.fromProto(request)
-        );
+    public void createLink(
+            ScrapperProto.AddLinkRequest request, StreamObserver<ScrapperProto.LinkResponse> responseObserver) {
+        LinkResponse response =
+                linksService.createLink(request.getTgChatId(), AddLinkRequestGrpcMapper.fromProto(request));
         ScrapperProto.LinkResponse grpcResponse = LinkResponseGrpcMapper.toProto(response);
         responseObserver.onNext(grpcResponse);
         responseObserver.onCompleted();
     }
 
     @Override
-    public void deleteLink(ScrapperProto.RemoveLinkRequest request,
-                           StreamObserver<ScrapperProto.LinkResponse> responseObserver) {
-        LinkResponse response = linksService.removeLink(
-            request.getTgChatId(),
-            RemoveLinkRequestGrpcMapper.fromProto(request)
-        );
+    public void deleteLink(
+            ScrapperProto.RemoveLinkRequest request, StreamObserver<ScrapperProto.LinkResponse> responseObserver) {
+        LinkResponse response =
+                linksService.removeLink(request.getTgChatId(), RemoveLinkRequestGrpcMapper.fromProto(request));
         ScrapperProto.LinkResponse grpcResponse = LinkResponseGrpcMapper.toProto(response);
         responseObserver.onNext(grpcResponse);
         responseObserver.onCompleted();

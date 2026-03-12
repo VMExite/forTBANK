@@ -49,10 +49,11 @@ public class ListCommand implements Command {
             String message = formatList(links, lang);
             bot.execute(new SendMessage(chatId, message));
         } catch (RestClientResponseException ex) {
-            String key = switch (ex.getStatusCode().value()) {
-                case 404 -> "bot.list.chat-not-registered";
-                default -> "bot.list.error";
-            };
+            String key =
+                    switch (ex.getStatusCode().value()) {
+                        case 404 -> "bot.list.chat-not-registered";
+                        default -> "bot.list.error";
+                    };
             String message = localisationService.getMessage(key, lang);
             bot.execute(new SendMessage(chatId, message));
         }
@@ -82,18 +83,19 @@ public class ListCommand implements Command {
         }
         String expected = tag.toLowerCase();
         return links.stream()
-            .filter(link -> link.tags() != null && link.tags().stream()
-                .anyMatch(t -> t != null && t.toLowerCase().equals(expected)))
-            .toList();
+                .filter(link -> link.tags() != null
+                        && link.tags().stream()
+                                .anyMatch(t -> t != null && t.toLowerCase().equals(expected)))
+                .toList();
     }
 
     private String formatList(List<LinkResponse> links, String lang) {
         String header = localisationService.getMessage("bot.list.header", lang);
         String body = links.stream()
-            .map(LinkResponse::url)
-            .map(url -> "- " + url)
-            .reduce((a, b) -> a + "\n" + b)
-            .orElse("");
+                .map(LinkResponse::url)
+                .map(url -> "- " + url)
+                .reduce((a, b) -> a + "\n" + b)
+                .orElse("");
         return header + "\n" + body;
     }
 }

@@ -1,12 +1,11 @@
 package backend.academy.linktracker.scrapper.repository.impl;
 
-
 import backend.academy.linktracker.scrapper.model.Link;
 import backend.academy.linktracker.scrapper.repository.LinkRepository;
-import org.springframework.stereotype.Component;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.stereotype.Component;
 
 @Component
 public class HashMapLinksRepository implements LinkRepository {

@@ -1,7 +1,5 @@
 package backend.academy.linktracker.scrapper.controller;
 
-import backend.academy.linktracker.scrapper.exception.ChatAlreadyExistsException;
-import backend.academy.linktracker.scrapper.exception.ChatNotExistsException;
 import backend.academy.linktracker.scrapper.service.RegistrationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

@@ -12,6 +12,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientResponseException;
+// Todo: переписать с явным разделением ответсвенности и большей рассширяемостью
+// (сейчас нельзя нормально использовать grpc в /track из за немаштабируемости компоненты)
 
 @Service
 @RequiredArgsConstructor
@@ -83,12 +85,13 @@ public class TrackConversationService {
     }
 
     private void handleTrackError(long chatId, String lang, RestClientResponseException ex) {
-        String key = switch (ex.getStatusCode().value()) {
-            case 400 -> "bot.track.invalid-link";
-            case 404 -> "bot.track.chat-not-registered";
-            case 409 -> "bot.track.already-tracked";
-            default -> "bot.track.error";
-        };
+        String key =
+                switch (ex.getStatusCode().value()) {
+                    case 400 -> "bot.track.invalid-link";
+                    case 404 -> "bot.track.chat-not-registered";
+                    case 409 -> "bot.track.already-tracked";
+                    default -> "bot.track.error";
+                };
         String message = localisationService.getMessage(key, lang);
         bot.execute(new SendMessage(chatId, message));
     }
@@ -98,9 +101,9 @@ public class TrackConversationService {
             return List.of();
         }
         return Arrays.stream(text.split(","))
-            .map(String::trim)
-            .filter(tag -> !tag.isEmpty())
-            .toList();
+                .map(String::trim)
+                .filter(tag -> !tag.isEmpty())
+                .toList();
     }
 
     private enum TrackState {

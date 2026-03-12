@@ -1,15 +1,15 @@
 package backend.academy.linktracker.scrapper.model;
 
+import java.time.OffsetDateTime;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import java.time.OffsetDateTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 @Getter
 @Setter
@@ -20,6 +20,7 @@ import java.util.Set;
 public class Link {
     @EqualsAndHashCode.Include
     private Long id;
+
     private String url;
     private List<String> tags;
     private List<String> filters;

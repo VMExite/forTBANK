@@ -2,9 +2,9 @@ package backend.academy.linktracker.scrapper.repository.impl;
 
 import backend.academy.linktracker.scrapper.model.Chat;
 import backend.academy.linktracker.scrapper.repository.ChatRepository;
-import org.springframework.stereotype.Component;
 import java.util.HashMap;
 import java.util.Optional;
+import org.springframework.stereotype.Component;
 
 @Component
 public class HashMapChatRepository implements ChatRepository {

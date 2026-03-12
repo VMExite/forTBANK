@@ -14,16 +14,14 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiErrorResponse> handleValidation(MethodArgumentNotValidException ex) {
-        return ResponseEntity
-            .status(HttpStatus.BAD_REQUEST)
-            .body(buildBody("Некорректные параметры запроса", HttpStatus.BAD_REQUEST, ex));
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(buildBody("Некорректные параметры запроса", HttpStatus.BAD_REQUEST, ex));
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ApiErrorResponse> handleBadRequest(IllegalArgumentException ex) {
-        return ResponseEntity
-            .status(HttpStatus.BAD_REQUEST)
-            .body(buildBody("Некорректные параметры запроса", HttpStatus.BAD_REQUEST, ex));
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(buildBody("Некорректные параметры запроса", HttpStatus.BAD_REQUEST, ex));
     }
 
     @ExceptionHandler(HttpClientErrorException.class)
@@ -33,13 +31,12 @@ public class GlobalExceptionHandler {
 
     private ApiErrorResponse buildBody(String description, HttpStatus status, Exception ex) {
         return new ApiErrorResponse(
-            description,
-            String.valueOf(status.value()),
-            ex.getClass().getName(),
-            ex.getMessage(),
-            Arrays.stream(ex.getStackTrace())
-                .map(StackTraceElement::toString)
-                .toList()
-        );
+                description,
+                String.valueOf(status.value()),
+                ex.getClass().getName(),
+                ex.getMessage(),
+                Arrays.stream(ex.getStackTrace())
+                        .map(StackTraceElement::toString)
+                        .toList());
     }
 }

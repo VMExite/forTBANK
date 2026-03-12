@@ -1,12 +1,12 @@
 package backend.academy.linktracker.scrapper.sheduler;
 
-import backend.academy.linktracker.scrapper.service.LinkUpdateRestClientService;
 import backend.academy.linktracker.scrapper.dto.LinkUpdateRequest;
+import backend.academy.linktracker.scrapper.service.LinkUpdateRestClientService;
 import backend.academy.linktracker.scrapper.service.LinkUpdateService;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import java.util.List;
 
 @Component
 @RequiredArgsConstructor

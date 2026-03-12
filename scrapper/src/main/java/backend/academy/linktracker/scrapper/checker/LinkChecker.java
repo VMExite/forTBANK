@@ -5,5 +5,6 @@ import java.time.OffsetDateTime;
 
 public interface LinkChecker {
     boolean canCheck(ParsedLink link);
+
     OffsetDateTime getLastUpdate(ParsedLink link);
 }

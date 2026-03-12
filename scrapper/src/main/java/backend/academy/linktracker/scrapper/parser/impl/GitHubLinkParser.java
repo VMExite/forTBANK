@@ -3,8 +3,8 @@ package backend.academy.linktracker.scrapper.parser.impl;
 import backend.academy.linktracker.scrapper.dto.GitHubLink;
 import backend.academy.linktracker.scrapper.dto.ParsedLink;
 import backend.academy.linktracker.scrapper.parser.LinkParser;
-import org.springframework.stereotype.Component;
 import java.net.URI;
+import org.springframework.stereotype.Component;
 
 @Component
 public class GitHubLinkParser implements LinkParser {
@@ -23,6 +23,6 @@ public class GitHubLinkParser implements LinkParser {
         String owner = segments[1];
         String repo = segments[2];
 
-        return new GitHubLink(owner,repo);
+        return new GitHubLink(owner, repo);
     }
 }

@@ -1,4 +1,3 @@
 package backend.academy.linktracker.scrapper.dto;
 
-public interface ParsedLink {
-}
+public interface ParsedLink {}

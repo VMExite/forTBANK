@@ -20,4 +20,3 @@ public class BotProperties {
     @URL
     private String baseUrl;
 }
-

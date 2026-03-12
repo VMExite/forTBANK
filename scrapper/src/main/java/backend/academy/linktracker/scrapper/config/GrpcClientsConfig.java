@@ -15,10 +15,9 @@ public class GrpcClientsConfig {
 
     @Bean
     ManagedChannel botManagedChannel() {
-        return ManagedChannelBuilder
-            .forAddress(botGrpcProperties.getHost(), botGrpcProperties.getPort())
-            .usePlaintext()
-            .build();
+        return ManagedChannelBuilder.forAddress(botGrpcProperties.getHost(), botGrpcProperties.getPort())
+                .usePlaintext()
+                .build();
     }
 
     @Bean

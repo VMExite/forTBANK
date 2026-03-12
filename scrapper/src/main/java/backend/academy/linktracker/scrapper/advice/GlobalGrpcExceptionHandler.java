@@ -12,7 +12,9 @@ import net.devh.boot.grpc.server.advice.GrpcExceptionHandler;
 public class GlobalGrpcExceptionHandler {
     @GrpcExceptionHandler(IllegalArgumentException.class)
     public Status handleInvalidArgument(IllegalArgumentException ex) {
-        return Status.INVALID_ARGUMENT.withDescription("некорректные параметры запроса").withCause(ex);
+        return Status.INVALID_ARGUMENT
+                .withDescription("некорректные параметры запроса")
+                .withCause(ex);
     }
 
     @GrpcExceptionHandler(ChatAlreadyExistsException.class)

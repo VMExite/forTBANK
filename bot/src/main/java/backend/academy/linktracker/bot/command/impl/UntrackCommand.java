@@ -43,11 +43,12 @@ public class UntrackCommand implements Command {
             String message = localisationService.getMessage("bot.untrack.removed", lang);
             bot.execute(new SendMessage(chatId, message));
         } catch (RestClientResponseException ex) {
-            String key = switch (ex.getStatusCode().value()) {
-                case 400 -> "bot.untrack.invalid-link";
-                case 404 -> "bot.untrack.not-found";
-                default -> "bot.untrack.error";
-            };
+            String key =
+                    switch (ex.getStatusCode().value()) {
+                        case 400 -> "bot.untrack.invalid-link";
+                        case 404 -> "bot.untrack.not-found";
+                        default -> "bot.untrack.error";
+                    };
             String message = localisationService.getMessage(key, lang);
             bot.execute(new SendMessage(chatId, message));
         }

@@ -14,21 +14,14 @@ public class BotGrpcService extends BotServiceGrpc.BotServiceImplBase {
     private final UpdateNotificationService updateNotificationService;
 
     @Override
-    public void sendUpdate(ScrapperProto.LinkUpdate request,
-                           StreamObserver<ScrapperProto.BotResponse> responseObserver) {
-        LinkUpdate update = new LinkUpdate(
-            request.getId(),
-            request.getUrl(),
-            request.getDescription(),
-            request.getTgChatIdsList()
-        );
+    public void sendUpdate(
+            ScrapperProto.LinkUpdate request, StreamObserver<ScrapperProto.BotResponse> responseObserver) {
+        LinkUpdate update =
+                new LinkUpdate(request.getId(), request.getUrl(), request.getDescription(), request.getTgChatIdsList());
         updateNotificationService.notifyUsers(update);
 
         responseObserver.onNext(
-            ScrapperProto.BotResponse.newBuilder()
-                .setMessage("ok")
-                .build()
-        );
+                ScrapperProto.BotResponse.newBuilder().setMessage("ok").build());
         responseObserver.onCompleted();
     }
 }

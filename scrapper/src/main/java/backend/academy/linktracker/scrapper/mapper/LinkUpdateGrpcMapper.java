@@ -8,10 +8,10 @@ public class LinkUpdateGrpcMapper {
 
     public static ScrapperProto.LinkUpdate toProto(LinkUpdateRequest mapped) {
         return ScrapperProto.LinkUpdate.newBuilder()
-            .setId(mapped.id())
-            .setUrl(mapped.url())
-            .setDescription("")
-            .addAllTgChatIds(mapped.tgChatIds())
-            .build();
+                .setId(mapped.id())
+                .setUrl(mapped.url())
+                .setDescription("")
+                .addAllTgChatIds(mapped.tgChatIds())
+                .build();
     }
 }

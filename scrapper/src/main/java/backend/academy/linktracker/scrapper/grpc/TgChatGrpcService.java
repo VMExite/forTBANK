@@ -12,28 +12,22 @@ import net.devh.boot.grpc.server.service.GrpcService;
 public class TgChatGrpcService extends TgChatServiceGrpc.TgChatServiceImplBase {
     private final RegistrationService registrationService;
 
-
     @Override
-    public void deleteChat(ScrapperProto.DeleteChatRequest request,
-                           StreamObserver<ScrapperProto.ChatResponse> responseObserver) {
+    public void deleteChat(
+            ScrapperProto.DeleteChatRequest request, StreamObserver<ScrapperProto.ChatResponse> responseObserver) {
         registrationService.deleteChat(request.getId());
         responseObserver.onNext(
-            ScrapperProto.ChatResponse.newBuilder()
-                .setMessage("чат удален")
-                .build()
-        );
+                ScrapperProto.ChatResponse.newBuilder().setMessage("чат удален").build());
         responseObserver.onCompleted();
     }
 
     @Override
-    public void registerChat(ScrapperProto.RegisterChatRequest request,
-                             StreamObserver<ScrapperProto.ChatResponse> responseObserver) {
+    public void registerChat(
+            ScrapperProto.RegisterChatRequest request, StreamObserver<ScrapperProto.ChatResponse> responseObserver) {
         registrationService.registerChat(request.getId());
-        responseObserver.onNext(
-            ScrapperProto.ChatResponse.newBuilder()
+        responseObserver.onNext(ScrapperProto.ChatResponse.newBuilder()
                 .setMessage("чат добавлен")
-                .build()
-        );
+                .build());
         responseObserver.onCompleted();
     }
 }

@@ -7,19 +7,15 @@ public class AddLinkRequestGrpcMapper {
     private AddLinkRequestGrpcMapper() {}
 
     public static AddLinkRequest fromProto(ScrapperProto.AddLinkRequest mapped) {
-        return new AddLinkRequest(
-            mapped.getLink(),
-            mapped.getTagsList(),
-            mapped.getFiltersList()
-        );
+        return new AddLinkRequest(mapped.getLink(), mapped.getTagsList(), mapped.getFiltersList());
     }
 
     public static ScrapperProto.AddLinkRequest toProto(Long tgChatId, AddLinkRequest mapped) {
         return ScrapperProto.AddLinkRequest.newBuilder()
-            .setTgChatId(tgChatId)
-            .setLink(mapped.link())
-            .addAllTags(mapped.tags())
-            .addAllFilters(mapped.filters())
-            .build();
+                .setTgChatId(tgChatId)
+                .setLink(mapped.link())
+                .addAllTags(mapped.tags())
+                .addAllFilters(mapped.filters())
+                .build();
     }
 }
