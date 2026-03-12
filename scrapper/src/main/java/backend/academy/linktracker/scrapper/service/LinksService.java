@@ -13,6 +13,7 @@ import backend.academy.linktracker.scrapper.repository.ChatRepository;
 import backend.academy.linktracker.scrapper.repository.LinkRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -40,7 +41,7 @@ public class LinksService {
 
     public LinkResponse createLink(Long chatId, AddLinkRequest request) throws IllegalArgumentException, ChatNotExistsException, LinkAlreadyTracked {
         validateId(chatId);
-        if (request == null || request.link() == null || !request.link().isEmpty()) {
+        if (request == null || request.link() == null || request.link().isBlank()) {
             throw new IllegalArgumentException();
         }
 
@@ -58,7 +59,7 @@ public class LinksService {
             .id(primaryKeyId.getAndIncrement())
             .url(request.link())
             .tags(request.tags())
-            .filters(request.filters())
+            .lastUpdate(OffsetDateTime.now())
             .build();
         Link savedLink = linkRepository.save(link);
 
@@ -71,7 +72,7 @@ public class LinksService {
     public LinkResponse removeLink(Long chatId, RemoveLinkRequest request) throws IllegalArgumentException, ChatNotExistsException, LinkNotFoundException {
         validateId(chatId);
 
-        if (request == null || request.link() == null || !request.link().isEmpty()) {
+        if (request == null || request.link() == null || request.link().isBlank()) {
             throw new IllegalArgumentException();
         }
 
@@ -99,7 +100,7 @@ public class LinksService {
     }
 
     private void validateId(Long id) throws IllegalArgumentException {
-        if (id == null || id < 0) {
+        if (id == null || id <= 0) {
             throw new IllegalArgumentException();
         }
     }

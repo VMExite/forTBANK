@@ -13,6 +13,11 @@ public class HashMapLinksRepository implements LinkRepository {
     private final HashMap<Long, Link> storage = new HashMap<>();
 
     @Override
+    public List<Link> findAll() {
+        return storage.values().stream().toList();
+    }
+
+    @Override
     public Optional<Link> findById(Long id) {
         return Optional.ofNullable(storage.get(id));
     }

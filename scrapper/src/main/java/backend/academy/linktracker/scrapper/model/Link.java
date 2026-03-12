@@ -6,6 +6,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import java.time.OffsetDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -23,5 +24,6 @@ public class Link {
     private List<String> tags;
     private List<String> filters;
 
+    private OffsetDateTime lastUpdate = OffsetDateTime.now();
     private final Set<Chat> chats = new HashSet<>();
 }
