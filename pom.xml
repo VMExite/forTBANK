@@ -330,13 +330,6 @@
                             <ruleset>pmd.xml</ruleset>
                         </rulesets>
                     </configuration>
-                    <executions>
-                        <execution>
-                            <goals>
-                                <goal>check</goal>
-                            </goals>
-                        </execution>
-                    </executions>
                     <dependencies>
                         <dependency>
                             <groupId>net.sourceforge.pmd</groupId>
@@ -349,6 +342,13 @@
                             <version>${pmd.version}</version>
                         </dependency>
                     </dependencies>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>check</goal>
+                            </goals>
+                        </execution>
+                    </executions>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
