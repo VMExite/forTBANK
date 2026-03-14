@@ -6,6 +6,7 @@ import com.pengrad.telegrambot.request.SendMessage;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.bouncycastle.util.Strings;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -31,10 +32,15 @@ public class UpdateNotificationService {
     }
 
     private String buildMessage(LinkUpdate update) {
-        String base = localisationService.getMessage("bot.update.notification");
-        if (update.description() == null || update.description().isBlank()) {
-            return base + " " + update.url();
+        StringBuilder builder = new StringBuilder(
+            localisationService.getMessage("bot.update.notification")
+        );
+        builder.append(update.url());
+
+        if (update.description() != null && !update.description().isEmpty()) {
+            builder.append(Strings.lineSeparator());
+            builder.append(update.description());
         }
-        return base + " " + update.url() + "\n" + update.description();
+        return builder.toString();
     }
 }

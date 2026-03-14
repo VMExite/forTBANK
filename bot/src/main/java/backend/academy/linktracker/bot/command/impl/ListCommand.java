@@ -11,6 +11,7 @@ import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.bouncycastle.util.Strings;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClientResponseException;
 
@@ -83,12 +84,12 @@ public class ListCommand implements Command {
 
     private String formatList(List<LinkResponse> links, String lang) {
         StringBuilder builder = new StringBuilder(localisationService.getMessage("bot.list.header", lang));
-        builder.append("\n");
+        builder.append(Strings.lineSeparator());
 
         for (LinkResponse link : links) {
             builder.append("-");
             builder.append(link.url());
-            builder.append("\n");
+            builder.append(Strings.lineSeparator());
         }
 
         return builder.toString();
