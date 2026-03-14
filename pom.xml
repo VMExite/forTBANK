@@ -303,6 +303,7 @@
                     <version>${modernizer-maven-plugin.version}</version>
                     <configuration>
                         <javaVersion>${java.version}</javaVersion>
+                        <outputFormat>CONSOLE</outputFormat>
                     </configuration>
                 </plugin>
                 <plugin>
