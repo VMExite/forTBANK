@@ -32,9 +32,7 @@ public class UpdateNotificationService {
     }
 
     private String buildMessage(LinkUpdate update) {
-        StringBuilder builder = new StringBuilder(
-            localisationService.getMessage("bot.update.notification")
-        );
+        StringBuilder builder = new StringBuilder(localisationService.getMessage("bot.update.notification"));
         builder.append(update.url());
 
         if (update.description() != null && !update.description().isEmpty()) {

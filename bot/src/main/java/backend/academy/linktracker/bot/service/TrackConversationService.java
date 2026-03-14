@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientResponseException;
 // Todo: переписать с явным разделением ответсвенности и большей рассширяемостью
 // (сейчас нельзя нормально использовать grpc в /track из за немаштабируемости компоненты)
+
 @Service
 @RequiredArgsConstructor
 public class TrackConversationService {

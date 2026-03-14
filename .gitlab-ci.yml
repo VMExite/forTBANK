@@ -1,4 +1,4 @@
-image: "${GITLAB_DOCKER_PROXY}/eclipse-temurin:25-jdk"
+image: "${GITLAB_DOCKER_PROXY}/eclipse-temurin:25-jdk-alpine"
 
 variables:
   MAVEN_OPTS: "-Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository"
