@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class StackoverflowLinkChecker implements LinkChecker {
 
-    private StackOverflowClient client;
+    private final StackOverflowClient client;
 
     @Override
     public boolean canCheck(ParsedLink link) {

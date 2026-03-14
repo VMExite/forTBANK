@@ -28,10 +28,10 @@ public class ListCommand implements Command {
 
     @Override
     public void handle(Update update) {
+
         long chatId = update.message().chat().id();
         String lang = update.message().from().languageCode();
-        String text = update.message().text().trim();
-        String tag = extractArgument(text);
+        String tag = extractArgument(update.message().text().trim(), 2, 1);
 
         try {
             ListLinkResponse response = scrapperClient.getLinks(chatId);
@@ -69,14 +69,6 @@ public class ListCommand implements Command {
         return CommandName.LIST.getDescriptionKey();
     }
 
-    private String extractArgument(String text) {
-        String[] parts = text.split("\\s+", 2);
-        if (parts.length < 2) {
-            return "";
-        }
-        return parts[1].trim();
-    }
-
     private List<LinkResponse> filterByTag(List<LinkResponse> links, String tag) {
         if (links == null || tag.isBlank()) {
             return links;
@@ -90,12 +82,15 @@ public class ListCommand implements Command {
     }
 
     private String formatList(List<LinkResponse> links, String lang) {
-        String header = localisationService.getMessage("bot.list.header", lang);
-        String body = links.stream()
-                .map(LinkResponse::url)
-                .map(url -> "- " + url)
-                .reduce((a, b) -> a + "\n" + b)
-                .orElse("");
-        return header + "\n" + body;
+        StringBuilder builder = new StringBuilder(localisationService.getMessage("bot.list.header", lang));
+        builder.append("\n");
+
+        for (LinkResponse link : links) {
+            builder.append("-");
+            builder.append(link.url());
+            builder.append("\n");
+        }
+
+        return builder.toString();
     }
 }

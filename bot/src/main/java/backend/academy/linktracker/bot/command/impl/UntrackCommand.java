@@ -29,8 +29,7 @@ public class UntrackCommand implements Command {
     public void handle(Update update) {
         long chatId = update.message().chat().id();
         String lang = update.message().from().languageCode();
-        String text = update.message().text().trim();
-        String argument = extractArgument(text);
+        String argument = extractArgument(update.message().text().trim(), 2, 1);
 
         if (!LinkValidator.isValid(argument)) {
             String message = localisationService.getMessage("bot.untrack.invalid-link", lang);
@@ -62,13 +61,5 @@ public class UntrackCommand implements Command {
     @Override
     public String getDescriptionKey() {
         return CommandName.UNTRACK.getDescriptionKey();
-    }
-
-    private String extractArgument(String text) {
-        String[] parts = text.split("\\s+", 2);
-        if (parts.length < 2) {
-            return "";
-        }
-        return parts[1].trim();
     }
 }
