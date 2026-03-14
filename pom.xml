@@ -259,7 +259,7 @@
                                 <groupId>io.grpc</groupId>
                                 <artifactId>protoc-gen-grpc-java</artifactId>
                                 <version>${grpc.version}</version>
-                                <classifier>$linux-x86_64</classifier>
+                                <classifier>linux-x86_64</classifier>
                             </binaryMavenPlugin>
                         </binaryMavenPlugins>
                     </configuration>
