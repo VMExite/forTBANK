@@ -314,15 +314,29 @@
                         <printFailingErrors>true</printFailingErrors>
                         <linkXRef>false</linkXRef>
                         <outputDirectory>${project.reporting.outputDirectory}/pmd</outputDirectory>
+                        <excludeRoots>
+                            <excludeRoot>target/generated-sources</excludeRoot>
+                            <excludeRoot>target/generated-test-sources</excludeRoot>
+                        </excludeRoots>
                         <excludes>
                             <exclude>**/target/**</exclude>
                             <exclude>**/generated/**</exclude>
                             <exclude>**/generated-sources/**</exclude>
+                            <exclude>**/proto/**</exclude>
+                            <exclude>**/Grpc.java</exclude>
+                            <exclude>**/OuterClass.java</exclude>
                         </excludes>
                         <rulesets>
                             <ruleset>pmd.xml</ruleset>
                         </rulesets>
                     </configuration>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>check</goal>
+                            </goals>
+                        </execution>
+                    </executions>
                     <dependencies>
                         <dependency>
                             <groupId>net.sourceforge.pmd</groupId>
