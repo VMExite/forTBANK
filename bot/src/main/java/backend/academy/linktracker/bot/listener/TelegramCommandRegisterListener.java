@@ -20,19 +20,13 @@ public class TelegramCommandRegisterListener {
     private final List<Command> commands;
     private final LocalisationService localisationService;
 
-    private static final List<String> SUPPORTED_LANDS = List.of("en", "ru");
-    // Тут я хотел зарегистрировать команды на всех языках, так не работает((
-    // Todo: переделать метод, оставить только английский
-
     @EventListener(ApplicationReadyEvent.class)
     public void setMyCommands() {
-        for (String lang : SUPPORTED_LANDS) {
-            BotCommand[] botCommands = commands.stream()
-                    .map(command -> new BotCommand(
-                            command.getCommandName(),
-                            localisationService.getMessage(command.getDescriptionKey(), lang)))
-                    .toArray(BotCommand[]::new);
-            bot.execute(new SetMyCommands(botCommands).languageCode(lang));
-        }
+        BotCommand[] botCommands = commands.stream()
+            .map(command -> new BotCommand(
+                command.getCommandName(),
+                localisationService.getMessage(command.getDescriptionKey())))
+            .toArray(BotCommand[]::new);
+        bot.execute(new SetMyCommands(botCommands));
     }
 }
