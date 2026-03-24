@@ -9,22 +9,18 @@ import backend.academy.linktracker.scrapper.exception.LinkAlreadyTracked;
 import backend.academy.linktracker.scrapper.exception.LinkNotFoundException;
 import backend.academy.linktracker.scrapper.model.Chat;
 import backend.academy.linktracker.scrapper.model.Link;
-import backend.academy.linktracker.scrapper.model.Tag;
 import backend.academy.linktracker.scrapper.repository.jpa.ChatJpaRepository;
 import backend.academy.linktracker.scrapper.repository.jpa.LinkJpaRepository;
-import backend.academy.linktracker.scrapper.service.LinksService;
-import java.util.List;
+import backend.academy.linktracker.scrapper.service.AbstractLinksService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 @ConditionalOnProperty(name = "app.access-type", havingValue = "ORM")
-public class OrmLinksService implements LinksService {
+public class OrmLinksService extends AbstractLinksService {
 
     private final ChatJpaRepository chatRepository;
     private final LinkJpaRepository linkRepository;
@@ -32,83 +28,40 @@ public class OrmLinksService implements LinksService {
     @Override
     @Transactional(readOnly = true)
     public ListLinkResponse getLinks(Long chatId) throws IllegalArgumentException, ChatNotExistsException {
-        validateId(chatId);
-
-        Chat chat = chatRepository.findById(chatId).orElseThrow(ChatNotExistsException::new);
-
-        List<LinkResponse> responses =
-                chat.getLinks().stream().map(this::mapToResponse).toList();
-
-        return new ListLinkResponse(responses, responses.size());
+        return super.getLinks(chatId);
     }
 
     @Override
     @Transactional
     public LinkResponse createLink(Long chatId, AddLinkRequest request)
             throws IllegalArgumentException, ChatNotExistsException, LinkAlreadyTracked {
-        validateId(chatId);
-        if (request == null || request.link() == null || request.link().isBlank()) {
-            throw new IllegalArgumentException();
-        }
-
-        Chat chat = chatRepository.findById(chatId).orElseThrow(ChatNotExistsException::new);
-
-        boolean alreadyTracked =
-                chat.getLinks().stream().anyMatch(link -> link.getUrl().equals(request.link()));
-        if (alreadyTracked) {
-            throw new LinkAlreadyTracked();
-        }
-
-        Link link = Link.builder()
-                .url(request.link())
-                .tags(request.tags().stream()
-                        .map(string -> Tag.builder().name(string).build())
-                        .toList())
-                .build();
-        Link savedLink = linkRepository.save(link);
-        chat.getLinks().add(savedLink);
-        chatRepository.save(chat);
-
-        return mapToResponse(link);
+        return super.createLink(chatId, request);
     }
 
     @Override
     @Transactional
     public LinkResponse removeLink(Long chatId, RemoveLinkRequest request)
             throws IllegalArgumentException, ChatNotExistsException, LinkNotFoundException {
-        validateId(chatId);
+        return super.removeLink(chatId, request);
+    }
 
-        if (request == null || request.link() == null || request.link().isBlank()) {
-            throw new IllegalArgumentException();
-        }
+    @Override
+    protected Chat getChatOrThrow(Long chatId) throws ChatNotExistsException {
+        return chatRepository.findById(chatId).orElseThrow(ChatNotExistsException::new);
+    }
 
-        Chat chat = chatRepository.findById(chatId).orElseThrow(ChatNotExistsException::new);
+    @Override
+    protected Link saveLink(Link link) {
+        return linkRepository.save(link);
+    }
 
-        Link link = chat.getLinks().stream()
-                .filter(l -> l.getUrl().equals(request.link()))
-                .findFirst()
-                .orElseThrow(LinkNotFoundException::new);
+    @Override
+    protected void deleteLinkById(Long linkId) {
+        linkRepository.deleteById(linkId);
+    }
 
-        if (link.getChats().isEmpty()) {
-            linkRepository.deleteById(link.getLinkId());
-        }
-
-        chat.getLinks().add(link);
+    @Override
+    protected void saveChat(Chat chat) {
         chatRepository.save(chat);
-
-        return mapToResponse(link);
-    }
-
-    private LinkResponse mapToResponse(Link link) {
-        return new LinkResponse(
-                link.getLinkId(),
-                link.getUrl(),
-                link.getTags().stream().map(Tag::getName).toList());
-    }
-
-    private void validateId(Long id) throws IllegalArgumentException {
-        if (id == null || id <= 0) {
-            throw new IllegalArgumentException();
-        }
     }
 }
