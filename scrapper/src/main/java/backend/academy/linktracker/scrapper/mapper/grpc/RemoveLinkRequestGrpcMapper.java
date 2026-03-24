@@ -1,4 +1,4 @@
-package backend.academy.linktracker.scrapper.mapper;
+package backend.academy.linktracker.scrapper.mapper.grpc;
 
 import backend.academy.linktracker.scrapper.ScrapperProto;
 import backend.academy.linktracker.scrapper.dto.RemoveLinkRequest;

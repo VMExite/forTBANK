@@ -38,7 +38,6 @@ public class ScrapperGrpcClient {
                 .setTgChatId(chatId)
                 .setLink(request.link())
                 .addAllTags(request.tags())
-                .addAllFilters(request.filters())
                 .build());
         return mapLink(response);
     }
@@ -52,6 +51,6 @@ public class ScrapperGrpcClient {
     }
 
     private LinkResponse mapLink(ScrapperProto.LinkResponse response) {
-        return new LinkResponse(response.getId(), response.getUrl(), response.getTagsList(), response.getFiltersList());
+        return new LinkResponse(response.getId(), response.getUrl(), response.getTagsList());
     }
 }
