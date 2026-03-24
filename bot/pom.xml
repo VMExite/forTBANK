@@ -78,16 +78,20 @@
         </dependency>
 
         <!-- Database: -->
-        <!-- <dependency> -->
-        <!--     <groupId>org.springframework.boot</groupId> -->
-        <!--     &lt;!&ndash; or: spring-boot-starter-data-jpa &ndash;&gt; -->
-        <!--     <artifactId>spring-boot-starter-data-jdbc</artifactId> -->
-        <!-- </dependency> -->
-        <!-- <dependency> -->
-        <!--     <groupId>org.springframework.boot</groupId> -->
-        <!--     &lt;!&ndash; or: spring-boot-starter-flyway &ndash;&gt; -->
-        <!--     <artifactId>spring-boot-starter-liquibase</artifactId> -->
-        <!-- </dependency> -->
+        <!--         <dependency>-->
+        <!--             <groupId>org.springframework.boot</groupId>-->
+        <!--             &lt;!&ndash; or: spring-boot-starter-data-jpa &ndash;&gt;-->
+        <!--             <artifactId>spring-boot-starter-data-jdbc</artifactId>-->
+        <!--         </dependency>-->
+        <!--        <dependency>-->
+        <!--            <groupId>org.springframework.boot</groupId>-->
+        <!--            <artifactId>spring-boot-starter-data-jpa</artifactId>-->
+        <!--        </dependency>-->
+        <!--         <dependency>-->
+        <!--             <groupId>org.springframework.boot</groupId>-->
+        <!--             &lt;!&ndash; or: spring-boot-starter-flyway &ndash;&gt;-->
+        <!--             <artifactId>spring-boot-starter-liquibase</artifactId>-->
+        <!--         </dependency>-->
 
         <!-- gRPC: -->
         <dependency>
@@ -203,6 +207,14 @@
             <groupId>org.awaitility</groupId>
             <artifactId>awaitility</artifactId>
             <scope>test</scope>
+        </dependency>
+
+        <!-- STATE MACHINE -->
+        <!-- Source: https://mvnrepository.com/artifact/org.springframework.statemachine/spring-statemachine-core -->
+        <dependency>
+            <groupId>org.springframework.statemachine</groupId>
+            <artifactId>spring-statemachine-core</artifactId>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 

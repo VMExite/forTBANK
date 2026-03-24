@@ -3,7 +3,6 @@ package backend.academy.linktracker.bot.command.impl;
 import backend.academy.linktracker.bot.command.Command;
 import backend.academy.linktracker.bot.command.CommandName;
 import backend.academy.linktracker.bot.dto.RemoveLinkRequest;
-import backend.academy.linktracker.bot.service.LinkValidator;
 import backend.academy.linktracker.bot.service.LocalisationService;
 import backend.academy.linktracker.bot.webclient.ScrapperClient;
 import com.pengrad.telegrambot.TelegramBot;
@@ -31,11 +30,11 @@ public class UntrackCommand implements Command {
         String lang = update.message().from().languageCode();
         String argument = extractArgument(update.message().text().trim(), 2, 1);
 
-        if (!LinkValidator.isValid(argument)) {
-            String message = localisationService.getMessage("bot.untrack.invalid-link", lang);
-            bot.execute(new SendMessage(chatId, message));
-            return;
-        }
+        //        if (!LinkValidator.isValid(argument)) {
+        //            String message = localisationService.getMessage("bot.untrack.invalid-link", lang);
+        //            bot.execute(new SendMessage(chatId, message));
+        //            return;
+        //        }
 
         try {
             scrapperClient.removeLink(chatId, new RemoveLinkRequest(argument));

@@ -1,5 +1,6 @@
 package backend.academy.linktracker.scrapper.properties;
 
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -15,7 +16,7 @@ import org.springframework.validation.annotation.Validated;
 @EqualsAndHashCode
 @NoArgsConstructor
 public class BotGrpcProperties {
-    @NotNull
+    @NotEmpty
     private String host;
 
     @NotNull

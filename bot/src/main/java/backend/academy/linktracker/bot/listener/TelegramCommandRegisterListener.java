@@ -23,10 +23,9 @@ public class TelegramCommandRegisterListener {
     @EventListener(ApplicationReadyEvent.class)
     public void setMyCommands() {
         BotCommand[] botCommands = commands.stream()
-            .map(command -> new BotCommand(
-                command.getCommandName(),
-                localisationService.getMessage(command.getDescriptionKey())))
-            .toArray(BotCommand[]::new);
+                .map(command -> new BotCommand(
+                        command.getCommandName(), localisationService.getMessage(command.getDescriptionKey())))
+                .toArray(BotCommand[]::new);
         bot.execute(new SetMyCommands(botCommands));
     }
 }

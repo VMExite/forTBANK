@@ -1,4 +1,4 @@
-package backend.academy.linktracker.scrapper.mapper;
+package backend.academy.linktracker.scrapper.mapper.grpc;
 
 import backend.academy.linktracker.scrapper.ScrapperProto;
 import backend.academy.linktracker.scrapper.dto.AddLinkRequest;
@@ -7,7 +7,7 @@ public class AddLinkRequestGrpcMapper {
     private AddLinkRequestGrpcMapper() {}
 
     public static AddLinkRequest fromProto(ScrapperProto.AddLinkRequest mapped) {
-        return new AddLinkRequest(mapped.getLink(), mapped.getTagsList(), mapped.getFiltersList());
+        return new AddLinkRequest(mapped.getLink(), mapped.getTagsList());
     }
 
     public static ScrapperProto.AddLinkRequest toProto(Long tgChatId, AddLinkRequest mapped) {
@@ -15,7 +15,6 @@ public class AddLinkRequestGrpcMapper {
                 .setTgChatId(tgChatId)
                 .setLink(mapped.link())
                 .addAllTags(mapped.tags())
-                .addAllFilters(mapped.filters())
                 .build();
     }
 }

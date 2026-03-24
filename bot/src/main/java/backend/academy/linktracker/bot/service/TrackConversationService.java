@@ -5,6 +5,7 @@ import backend.academy.linktracker.bot.webclient.ScrapperClient;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
+import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -55,7 +56,7 @@ public class TrackConversationService {
         String lang = update.message().from().languageCode();
 
         if (session.state() == TrackState.AWAITING_LINK) {
-            if (!LinkValidator.isValid(text)) {
+            if (!isValidUrl(text)) {
                 String message = localisationService.getMessage("bot.track.invalid-link", lang);
                 bot.execute(new SendMessage(chatId, message));
                 return true;
@@ -69,7 +70,7 @@ public class TrackConversationService {
 
         if (session.state() == TrackState.AWAITING_TAGS) {
             List<String> tags = parseTags(text);
-            AddLinkRequest request = new AddLinkRequest(session.link(), tags, List.of());
+            AddLinkRequest request = new AddLinkRequest(session.link(), tags);
             try {
                 scrapperClient.addLink(chatId, request);
                 String message = localisationService.getMessage("bot.track.added", lang);
@@ -104,6 +105,22 @@ public class TrackConversationService {
                 .map(String::trim)
                 .filter(tag -> !tag.isEmpty())
                 .toList();
+    }
+
+    private boolean isValidUrl(String text) {
+        try {
+            URI uri = URI.create(text);
+            String scheme = uri.getScheme();
+            if (scheme == null) {
+                return false;
+            }
+            if (!scheme.equalsIgnoreCase("http") && !scheme.equalsIgnoreCase("https")) {
+                return false;
+            }
+            return uri.getHost() != null;
+        } catch (IllegalArgumentException ex) {
+            return false;
+        }
     }
 
     private enum TrackState {
