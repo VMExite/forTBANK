@@ -13,7 +13,6 @@ import backend.academy.linktracker.scrapper.model.Tag;
 import backend.academy.linktracker.scrapper.repository.jdbc.ChatJdbcRepository;
 import backend.academy.linktracker.scrapper.repository.jdbc.LinkJdbcRepository;
 import backend.academy.linktracker.scrapper.service.LinksService;
-import java.time.OffsetDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -63,7 +62,6 @@ public class SqlLinksService implements LinksService {
                 .tags(request.tags().stream()
                         .map(string -> Tag.builder().name(string).build())
                         .toList())
-                .lastUpdate(OffsetDateTime.now())
                 .build();
         Link savedLink = linkRepository.save(link);
         chat.getLinks().add(savedLink);

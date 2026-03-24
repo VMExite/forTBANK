@@ -41,7 +41,6 @@ public class OrmLinkUpdateService implements LinkUpdateService {
             }
 
             if (offsetDateTime != null && offsetDateTime.isAfter(link.getLastUpdate())) {
-                link.setLastUpdate(offsetDateTime);
                 repository.save(link);
 
                 updates.add(new LinkUpdateRequest(
