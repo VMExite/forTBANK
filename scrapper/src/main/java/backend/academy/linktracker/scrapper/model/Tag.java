@@ -1,9 +1,10 @@
 package backend.academy.linktracker.scrapper.model;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,14 +20,14 @@ import lombok.Setter;
 @NoArgsConstructor
 @Builder
 @Entity
-public class Chat {
+public class Tag {
     @Id
-    private Long chatId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long tagId;
 
-    @ManyToMany
-    @JoinTable(
-            name = "chat_link",
-            joinColumns = @JoinColumn(name = "chat_id", referencedColumnName = "chatId"),
-            inverseJoinColumns = @JoinColumn(name = "link_id", referencedColumnName = "linkId"))
+    @Column(nullable = false)
+    private String name;
+
+    @ManyToMany(mappedBy = "tags")
     private List<Link> links = new ArrayList<>();
 }

@@ -32,4 +32,7 @@ logging:
     root: info
   structured:
     format:
-      console: ecs
+#      console: ecs
+      file: ecs
+  file:
+    name: log/log.json

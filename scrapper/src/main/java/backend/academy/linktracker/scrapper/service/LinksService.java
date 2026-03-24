@@ -7,96 +7,13 @@ import backend.academy.linktracker.scrapper.dto.RemoveLinkRequest;
 import backend.academy.linktracker.scrapper.exception.ChatNotExistsException;
 import backend.academy.linktracker.scrapper.exception.LinkAlreadyTracked;
 import backend.academy.linktracker.scrapper.exception.LinkNotFoundException;
-import backend.academy.linktracker.scrapper.model.Chat;
-import backend.academy.linktracker.scrapper.model.Link;
-import backend.academy.linktracker.scrapper.repository.ChatRepository;
-import backend.academy.linktracker.scrapper.repository.LinkRepository;
-import java.time.OffsetDateTime;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
-@Service
-@RequiredArgsConstructor
-public class LinksService {
+public interface LinksService {
+    ListLinkResponse getLinks(Long chatId) throws IllegalArgumentException, ChatNotExistsException;
 
-    private final AtomicLong primaryKeyId = new AtomicLong(0);
-    private final ChatRepository chatRepository;
-    private final LinkRepository linkRepository;
+    LinkResponse createLink(Long chatId, AddLinkRequest request)
+            throws IllegalArgumentException, ChatNotExistsException, LinkAlreadyTracked;
 
-    public ListLinkResponse getLinks(Long chatId) throws IllegalArgumentException, ChatNotExistsException {
-        validateId(chatId);
-
-        Chat chat = chatRepository.findById(chatId).orElseThrow(ChatNotExistsException::new);
-
-        List<LinkResponse> responses =
-                chat.getLinks().stream().map(this::mapToResponse).toList();
-
-        return new ListLinkResponse(responses, responses.size());
-    }
-
-    public LinkResponse createLink(Long chatId, AddLinkRequest request)
-            throws IllegalArgumentException, ChatNotExistsException, LinkAlreadyTracked {
-        validateId(chatId);
-        if (request == null || request.link() == null || request.link().isBlank()) {
-            throw new IllegalArgumentException();
-        }
-
-        Chat chat = chatRepository.findById(chatId).orElseThrow(ChatNotExistsException::new);
-
-        boolean alreadyTracked =
-                chat.getLinks().stream().anyMatch(link -> link.getUrl().equals(request.link()));
-        if (alreadyTracked) {
-            throw new LinkAlreadyTracked();
-        }
-
-        Link link = Link.builder()
-                .id(primaryKeyId.getAndIncrement())
-                .url(request.link())
-                .tags(request.tags())
-                .lastUpdate(OffsetDateTime.now())
-                .build();
-        Link savedLink = linkRepository.save(link);
-
-        chat.addLink(savedLink);
-        chatRepository.save(chat);
-
-        return mapToResponse(link);
-    }
-
-    public LinkResponse removeLink(Long chatId, RemoveLinkRequest request)
-            throws IllegalArgumentException, ChatNotExistsException, LinkNotFoundException {
-        validateId(chatId);
-
-        if (request == null || request.link() == null || request.link().isBlank()) {
-            throw new IllegalArgumentException();
-        }
-
-        Chat chat = chatRepository.findById(chatId).orElseThrow(ChatNotExistsException::new);
-
-        Link link = chat.getLinks().stream()
-                .filter(l -> l.getUrl().equals(request.link()))
-                .findFirst()
-                .orElseThrow(LinkNotFoundException::new);
-
-        if (link.getChats().isEmpty()) {
-            linkRepository.deleteById(link.getId());
-        }
-
-        chat.removeLink(link);
-        chatRepository.save(chat);
-
-        return mapToResponse(link);
-    }
-
-    private LinkResponse mapToResponse(Link link) {
-        return new LinkResponse(link.getId(), link.getUrl(), link.getTags(), link.getFilters());
-    }
-
-    private void validateId(Long id) throws IllegalArgumentException {
-        if (id == null || id <= 0) {
-            throw new IllegalArgumentException();
-        }
-    }
+    LinkResponse removeLink(Long chatId, RemoveLinkRequest request)
+            throws IllegalArgumentException, ChatNotExistsException, LinkNotFoundException;
 }
