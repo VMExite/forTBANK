@@ -11,12 +11,12 @@ spring:
   datasource:
     url: ${DATASOURCE_URL}
     username: ${DATASOURCE_USER}
-    password: ${DATASOURCE_PASSWORD}}
+    password: ${DATASOURCE_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: none
     properties:
       hibernate:
         format_sql: true
@@ -25,9 +25,12 @@ spring:
   liquibase:
     enabled: true
     change-log: classpath:/migrations/master.xml
+    url: ${DATASOURCE_URL}
+    user: ${DATASOURCE_USER}
+    password: ${DATASOURCE_PASSWORD}
 
   config:
-      import: optional:file:.env[.properties]
+      import: file:.env[.properties]
 
 app:
   access-type: SQL
@@ -43,3 +46,4 @@ app:
     grpc:
       host: "localhost"
       port: 9091
+debug: true
