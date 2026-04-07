@@ -17,7 +17,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -25,7 +26,7 @@ import org.springframework.stereotype.Repository;
 @RequiredArgsConstructor
 public class ChatJdbcRepositoryImpl implements ChatJdbcRepository {
 
-    private final JdbcTemplate jdbcTemplate;
+    private final NamedParameterJdbcTemplate jdbcTemplate;
     private final ChatRowMapper chatRowMapper;
     private final LinkRowMapper linkRowMapper;
 
@@ -33,58 +34,69 @@ public class ChatJdbcRepositoryImpl implements ChatJdbcRepository {
         SELECT chat_id
         FROM chat
         """;
+
     private static final String FIND_BY_ID_SQL = """
         SELECT chat_id
         FROM chat
-        WHERE chat_id = ?
+        WHERE chat_id = :id
         """;
+
     private static final String INSERT_SQL = """
         INSERT INTO chat (chat_id)
-        VALUES (?)
+        VALUES (:id)
         ON CONFLICT (chat_id) DO NOTHING
         """;
+
     private static final String DELETE_SQL = """
         DELETE FROM chat
-        WHERE chat_id = ?
+        WHERE chat_id = :id
         """;
+
     private static final String EXISTS_SQL = """
         SELECT EXISTS (
-            SELECT 1 FROM chat WHERE chat_id = ?
+            SELECT 1 FROM chat WHERE chat_id = :id
         )
         """;
-    private static final String FIND_LINKS_BY_CHAT_IDS_TEMPLATE = """
+
+    private static final String FIND_LINKS_BY_CHAT_IDS_SQL = """
         SELECT cl.chat_id, l.link_id, l.url, l.last_update
         FROM chat_link cl
         JOIN link l ON l.link_id = cl.link_id
-        WHERE cl.chat_id IN (%s)
+        WHERE cl.chat_id IN (:ids)
         """;
+
     private static final String INSERT_CHAT_LINK_SQL = """
         INSERT INTO chat_link (chat_id, link_id)
-        VALUES (?, ?)
+        VALUES (:chatId, :linkId)
         ON CONFLICT DO NOTHING
         """;
+
     private static final String DELETE_CHAT_LINK_SQL = """
         DELETE FROM chat_link
-        WHERE chat_id = ? AND link_id = ?
+        WHERE chat_id = :chatId AND link_id = :linkId
         """;
+
     private static final String DELETE_ALL_CHAT_LINKS_SQL = """
         DELETE FROM chat_link
-        WHERE chat_id = ?
+        WHERE chat_id = :id
         """;
+
     private static final String SELECT_LINK_IDS_SQL = """
-        SELECT link_id FROM chat_link WHERE chat_id = ?
+        SELECT link_id FROM chat_link WHERE chat_id = :id
         """;
 
     @Override
     public List<Chat> findAll() {
-        List<Chat> chats = jdbcTemplate.query(FIND_ALL_SQL, chatRowMapper);
+        List<Chat> chats = jdbcTemplate.getJdbcTemplate().query(FIND_ALL_SQL, chatRowMapper);
         return enrichChats(chats);
     }
 
     @Override
     public Optional<Chat> findById(Long id) {
-        Optional<Chat> chat =
-                jdbcTemplate.query(FIND_BY_ID_SQL, chatRowMapper, id).stream().findFirst();
+        MapSqlParameterSource params = new MapSqlParameterSource("id", id);
+
+        Optional<Chat> chat = jdbcTemplate.query(FIND_BY_ID_SQL, params, chatRowMapper).stream()
+                .findFirst();
 
         chat.ifPresent(this::enrichChat);
         return chat;
@@ -92,7 +104,8 @@ public class ChatJdbcRepositoryImpl implements ChatJdbcRepository {
 
     @Override
     public boolean existsById(Long id) {
-        Boolean exists = jdbcTemplate.queryForObject(EXISTS_SQL, Boolean.class, id);
+        MapSqlParameterSource params = new MapSqlParameterSource("id", id);
+        Boolean exists = jdbcTemplate.queryForObject(EXISTS_SQL, params, Boolean.class);
         return Boolean.TRUE.equals(exists);
     }
 
@@ -100,7 +113,10 @@ public class ChatJdbcRepositoryImpl implements ChatJdbcRepository {
     @Transactional
     public Chat save(Chat entity) {
         Long chatId = entity.getChatId();
-        jdbcTemplate.update(INSERT_SQL, chatId);
+
+        MapSqlParameterSource params = new MapSqlParameterSource("id", chatId);
+        jdbcTemplate.update(INSERT_SQL, params);
+
         syncLinks(entity);
         return entity;
     }
@@ -114,18 +130,27 @@ public class ChatJdbcRepositoryImpl implements ChatJdbcRepository {
     @Override
     @Transactional
     public void deleteById(Long id) {
-        jdbcTemplate.update(DELETE_ALL_CHAT_LINKS_SQL, id);
-        jdbcTemplate.update(DELETE_SQL, id);
+        MapSqlParameterSource params = new MapSqlParameterSource("id", id);
+        jdbcTemplate.update(DELETE_ALL_CHAT_LINKS_SQL, params);
+        jdbcTemplate.update(DELETE_SQL, params);
     }
 
     private void syncLinks(Chat chat) {
         Long chatId = chat.getChatId();
-        Set<Long> existing =
-                new HashSet<>(jdbcTemplate.query(SELECT_LINK_IDS_SQL, (rs, rowNum) -> rs.getLong("link_id"), chatId));
+
+        // existing links
+        MapSqlParameterSource params = new MapSqlParameterSource("id", chatId);
+
+        List<Long> existingList =
+                jdbcTemplate.query(SELECT_LINK_IDS_SQL, params, (rs, rowNum) -> rs.getLong("link_id"));
+
+        Set<Long> existing = new HashSet<>(existingList);
+
         Set<Long> incoming = chat.getLinks().stream()
                 .map(Link::getLinkId)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
+
         Set<Long> toInsert = new HashSet<>(incoming);
         toInsert.removeAll(existing);
 
@@ -138,25 +163,30 @@ public class ChatJdbcRepositoryImpl implements ChatJdbcRepository {
 
     private void batchInsert(Long chatId, Set<Long> linkIds) {
         if (linkIds.isEmpty()) return;
-        jdbcTemplate.batchUpdate(INSERT_CHAT_LINK_SQL, linkIds, linkIds.size(), (ps, linkId) -> {
-            ps.setLong(1, chatId);
-            ps.setLong(2, linkId);
-        });
+
+        List<MapSqlParameterSource> batch = linkIds.stream()
+                .map(linkId ->
+                        new MapSqlParameterSource().addValue("chatId", chatId).addValue("linkId", linkId))
+                .toList();
+
+        jdbcTemplate.batchUpdate(INSERT_CHAT_LINK_SQL, batch.toArray(new MapSqlParameterSource[0]));
     }
 
     private void batchDelete(Long chatId, Set<Long> linkIds) {
         if (linkIds.isEmpty()) return;
-        jdbcTemplate.batchUpdate(DELETE_CHAT_LINK_SQL, linkIds, linkIds.size(), (ps, linkId) -> {
-            ps.setLong(1, chatId);
-            ps.setLong(2, linkId);
-        });
+
+        List<MapSqlParameterSource> batch = linkIds.stream()
+                .map(linkId ->
+                        new MapSqlParameterSource().addValue("chatId", chatId).addValue("linkId", linkId))
+                .toList();
+
+        jdbcTemplate.batchUpdate(DELETE_CHAT_LINK_SQL, batch.toArray(new MapSqlParameterSource[0]));
     }
 
     private List<Chat> enrichChats(List<Chat> chats) {
         if (chats.isEmpty()) return chats;
 
         List<Long> chatIds = chats.stream().map(Chat::getChatId).toList();
-
         Map<Long, Set<Link>> linksMap = loadLinks(chatIds);
 
         for (Chat chat : chats) {
@@ -167,29 +197,23 @@ public class ChatJdbcRepositoryImpl implements ChatJdbcRepository {
     }
 
     private void enrichChat(Chat chat) {
-        Long chatId = chat.getChatId();
-
-        Map<Long, Set<Link>> links = loadLinks(List.of(chatId));
-
-        chat.setLinks(new HashSet<>(links.getOrDefault(chatId, Collections.emptySet())));
+        Map<Long, Set<Link>> links = loadLinks(List.of(chat.getChatId()));
+        chat.setLinks(new HashSet<>(links.getOrDefault(chat.getChatId(), Collections.emptySet())));
     }
 
     private Map<Long, Set<Link>> loadLinks(List<Long> chatIds) {
-        String inSql = chatIds.stream().map(id -> "?").collect(Collectors.joining(","));
+        if (chatIds.isEmpty()) return new HashMap<>();
 
-        String sql = FIND_LINKS_BY_CHAT_IDS_TEMPLATE.formatted(inSql);
+        MapSqlParameterSource params = new MapSqlParameterSource("ids", chatIds);
 
         Map<Long, Set<Link>> result = new HashMap<>();
 
-        jdbcTemplate.query(
-                sql,
-                rs -> {
-                    Long chatId = rs.getLong("chat_id");
-                    Link link = linkRowMapper.mapRow(rs, 0);
+        jdbcTemplate.query(FIND_LINKS_BY_CHAT_IDS_SQL, params, rs -> {
+            Long chatId = rs.getLong("chat_id");
+            Link link = linkRowMapper.mapRow(rs, 0);
 
-                    result.computeIfAbsent(chatId, k -> new HashSet<>()).add(link);
-                },
-                chatIds.toArray());
+            result.computeIfAbsent(chatId, k -> new HashSet<>()).add(link);
+        });
 
         return result;
     }

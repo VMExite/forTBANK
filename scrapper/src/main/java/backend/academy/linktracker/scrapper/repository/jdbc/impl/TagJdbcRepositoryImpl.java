@@ -6,17 +6,17 @@ import backend.academy.linktracker.scrapper.model.Link;
 import backend.academy.linktracker.scrapper.model.Tag;
 import backend.academy.linktracker.scrapper.repository.jdbc.TagJdbcRepository;
 import jakarta.transaction.Transactional;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -24,7 +24,7 @@ import org.springframework.stereotype.Repository;
 @RequiredArgsConstructor
 public class TagJdbcRepositoryImpl implements TagJdbcRepository {
 
-    private final JdbcTemplate jdbcTemplate;
+    private final NamedParameterJdbcTemplate jdbcTemplate;
     private final TagRowMapper tagRowMapper;
     private final LinkRowMapper linkRowMapper;
 
@@ -36,43 +36,50 @@ public class TagJdbcRepositoryImpl implements TagJdbcRepository {
     private static final String FIND_BY_ID_SQL = """
         SELECT tag_id, name
         FROM tag
-        WHERE tag_id = ?
+        WHERE tag_id = :id
         """;
 
     private static final String INSERT_SQL = """
         INSERT INTO tag (name)
-        VALUES (?)
+        VALUES (:name)
         RETURNING tag_id
         """;
 
     private static final String UPDATE_SQL = """
         UPDATE tag
-        SET name = ?
-        WHERE tag_id = ?
+        SET name = :name
+        WHERE tag_id = :id
         """;
 
     private static final String DELETE_SQL = """
         DELETE FROM tag
-        WHERE tag_id = ?
+        WHERE tag_id = :id
         """;
 
-    private static final String FIND_LINKS_BY_TAG_IDS_TEMPLATE = """
+    private static final String FIND_LINKS_BY_TAG_IDS_SQL = """
         SELECT lt.tag_id, l.link_id, l.url, l.last_update
         FROM link_tag lt
         JOIN link l ON l.link_id = lt.link_id
-        WHERE lt.tag_id IN (%s)
+        WHERE lt.tag_id IN (:ids)
+        """;
+
+    private static final String DELETE_ALL_LINK_TAGS_BY_TAG_SQL = """
+        DELETE FROM link_tag
+        WHERE tag_id = :id
         """;
 
     @Override
     public List<Tag> findAll() {
-        List<Tag> tags = jdbcTemplate.query(FIND_ALL_SQL, tagRowMapper);
+        List<Tag> tags = jdbcTemplate.getJdbcTemplate().query(FIND_ALL_SQL, tagRowMapper);
         return enrichTags(tags);
     }
 
     @Override
     public Optional<Tag> findById(Long id) {
-        Optional<Tag> tag =
-                jdbcTemplate.query(FIND_BY_ID_SQL, tagRowMapper, id).stream().findFirst();
+        MapSqlParameterSource params = new MapSqlParameterSource("id", id);
+
+        Optional<Tag> tag = jdbcTemplate.query(FIND_BY_ID_SQL, params, tagRowMapper).stream()
+                .findFirst();
 
         tag.ifPresent(this::enrichTag);
         return tag;
@@ -81,12 +88,16 @@ public class TagJdbcRepositoryImpl implements TagJdbcRepository {
     @Override
     @Transactional
     public Tag save(Tag entity) {
+        MapSqlParameterSource params = new MapSqlParameterSource().addValue("name", entity.getName());
+
         if (entity.getTagId() == null) {
-            Long id = jdbcTemplate.queryForObject(INSERT_SQL, Long.class, entity.getName());
-            entity.setTagId(Objects.requireNonNull(id));
+            Long id = jdbcTemplate.queryForObject(INSERT_SQL, params, Long.class);
+            entity.setTagId(id);
         } else {
-            jdbcTemplate.update(UPDATE_SQL, entity.getName(), entity.getTagId());
+            params.addValue("id", entity.getTagId());
+            jdbcTemplate.update(UPDATE_SQL, params);
         }
+
         return entity;
     }
 
@@ -99,54 +110,42 @@ public class TagJdbcRepositoryImpl implements TagJdbcRepository {
     @Override
     @Transactional
     public void deleteById(Long id) {
-        jdbcTemplate.update(DELETE_SQL, id);
+        MapSqlParameterSource params = new MapSqlParameterSource("id", id);
+        jdbcTemplate.update(DELETE_ALL_LINK_TAGS_BY_TAG_SQL, params);
+        jdbcTemplate.update(DELETE_SQL, params);
     }
 
     private List<Tag> enrichTags(List<Tag> tags) {
-        if (tags.isEmpty()) {
-            return tags;
-        }
+        if (tags.isEmpty()) return tags;
 
         List<Long> tagIds = tags.stream().map(Tag::getTagId).toList();
-
         Map<Long, Set<Link>> linksMap = loadLinks(tagIds);
 
         for (Tag tag : tags) {
-            tag.setLinks(linksMap.getOrDefault(tag.getTagId(), new HashSet<>()));
+            tag.setLinks(new HashSet<>(linksMap.getOrDefault(tag.getTagId(), Collections.emptySet())));
         }
 
         return tags;
     }
 
     private void enrichTag(Tag tag) {
-        Long tagId = tag.getTagId();
-
-        Map<Long, Set<Link>> links = loadLinks(List.of(tagId));
-
-        tag.setLinks(links.getOrDefault(tagId, new HashSet<>()));
+        Map<Long, Set<Link>> links = loadLinks(List.of(tag.getTagId()));
+        tag.setLinks(new HashSet<>(links.getOrDefault(tag.getTagId(), Collections.emptySet())));
     }
 
     private Map<Long, Set<Link>> loadLinks(List<Long> tagIds) {
-        if (tagIds.isEmpty()) {
-            return new HashMap<>();
-        }
+        if (tagIds.isEmpty()) return new HashMap<>();
 
-        String inSql = tagIds.stream().map(id -> "?").collect(Collectors.joining(","));
-
-        String sql = FIND_LINKS_BY_TAG_IDS_TEMPLATE.formatted(inSql);
+        MapSqlParameterSource params = new MapSqlParameterSource("ids", tagIds);
 
         Map<Long, Set<Link>> result = new HashMap<>();
 
-        jdbcTemplate.query(
-                sql,
-                rs -> {
-                    Long tagId = rs.getLong("tag_id");
+        jdbcTemplate.query(FIND_LINKS_BY_TAG_IDS_SQL, params, rs -> {
+            Long tagId = rs.getLong("tag_id");
+            Link link = linkRowMapper.mapRow(rs, 0);
 
-                    Link link = linkRowMapper.mapRow(rs, 0);
-
-                    result.computeIfAbsent(tagId, k -> new HashSet<>()).add(link);
-                },
-                tagIds.toArray());
+            result.computeIfAbsent(tagId, k -> new HashSet<>()).add(link);
+        });
 
         return result;
     }
