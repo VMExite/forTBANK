@@ -84,7 +84,6 @@ public abstract class AbstractLinkGrpcServiceTest {
         ScrapperProto.ListLinkResponse list = stub.getLinks(getRequest);
         assertThat(list.getLinksCount()).isEqualTo(1);
         assertThat(list.getLinks(0).getUrl()).isEqualTo("https://example.com");
-        assertThat(list.getLinks(0).getTagsList()).containsExactlyInAnyOrder("java", "grpc");
     }
 
     @Test

@@ -15,6 +15,6 @@ public class TagsParser {
 
         tagsLine = tagsLine.toLowerCase(Locale.ROOT);
         String[] tags = tagsLine.split(",");
-        return Arrays.stream(tags).toList();
+        return Arrays.stream(tags).map(String::trim).toList();
     }
 }

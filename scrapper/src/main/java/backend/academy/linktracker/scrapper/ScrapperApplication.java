@@ -12,7 +12,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableJpaRepositories
 public class ScrapperApplication {
 
-    static void main(String[] args) {
+    public static void main(String[] args) {
         SpringApplication.run(ScrapperApplication.class, args);
     }
 }

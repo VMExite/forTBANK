@@ -11,6 +11,7 @@ import backend.academy.linktracker.scrapper.model.Chat;
 import backend.academy.linktracker.scrapper.model.Link;
 import backend.academy.linktracker.scrapper.model.Tag;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public abstract class AbstractLinksService implements LinksService {
 
@@ -45,7 +46,7 @@ public abstract class AbstractLinksService implements LinksService {
                 .url(request.link())
                 .tags(request.tags().stream()
                         .map(string -> Tag.builder().name(string).build())
-                        .toList())
+                        .collect(Collectors.toSet()))
                 .build();
         Link savedLink = saveLink(link);
         chat.getLinks().add(savedLink);
@@ -74,7 +75,7 @@ public abstract class AbstractLinksService implements LinksService {
             deleteLinkById(link.getLinkId());
         }
 
-        chat.getLinks().add(link);
+        chat.getLinks().remove(link);
         saveChat(chat);
 
         return mapToResponse(link);
