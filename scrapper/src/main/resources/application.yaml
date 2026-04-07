@@ -30,7 +30,7 @@ spring:
     password: ${DATASOURCE_PASSWORD}
 
   config:
-      import: file:.env[.properties]
+      import: optional:file:.env[.properties]
 
 app:
   access-type: SQL
