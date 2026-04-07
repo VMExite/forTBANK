@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.jdbc.Sql;
@@ -27,6 +28,7 @@ import org.testcontainers.postgresql.PostgreSQLContainer;
 @SpringBootTest
 @Testcontainers
 @Sql(scripts = "classpath:/sql/clear.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+@ActiveProfiles("test")
 public abstract class AbstractLinkGrpcServiceTest {
 
     private static final String IN_PROCESS_NAME = "test-grpc-tg";

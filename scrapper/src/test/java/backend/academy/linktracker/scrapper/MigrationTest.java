@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.junit.jupiter.Container;
@@ -16,6 +17,7 @@ import org.testcontainers.postgresql.PostgreSQLContainer;
 
 @SpringBootTest
 @Testcontainers
+@ActiveProfiles("test")
 class MigrationTest {
     private static final String SQL = """
     SELECT count(*)

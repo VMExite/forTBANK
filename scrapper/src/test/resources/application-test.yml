@@ -3,12 +3,23 @@ grpc:
     port: -1
 
 spring:
-  task:
+    datasource:
+      url: jdbc:tc:postgresql:16:///testdb
+      username: test
+      password: test
+      driver-class-name: org.postgresql.Driver
+    liquibase:
+      enabled: true
+      change-log: classpath:/migrations/master.xml
+      url: jdbc:tc:postgresql:16:///testdb
+      user: test
+      password: test
+
+    task:
     scheduling:
       enabled: false
-  datasource:
-    driver-class-name: org.postgresql.Driver
-  jpa:
+
+    jpa:
     hibernate:
       ddl-auto: none
 
