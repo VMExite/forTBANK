@@ -1,46 +1,13 @@
 package backend.academy.linktracker.scrapper.model;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotNull;
-import java.util.HashSet;
-import java.util.Set;
-import lombok.AllArgsConstructor;
+import backend.academy.linktracker.scrapper.model.value.TagId;
 import lombok.Builder;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
 @Builder
-@Entity
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@Table(name = "tag")
 public class Tag {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @EqualsAndHashCode.Include
-    @Column(name = "tag_id")
-    private Long tagId;
-
-    @Column(name = "name", nullable = false)
-    @EqualsAndHashCode.Include
-    @NotNull
+    @Getter
+    private TagId tagId;
+    @Getter
     private String name;
-
-    @ManyToMany(
-            mappedBy = "tags",
-            cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
-    @Builder.Default
-    private Set<Link> links = new HashSet<>();
 }

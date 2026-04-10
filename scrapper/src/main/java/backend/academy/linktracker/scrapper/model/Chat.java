@@ -1,41 +1,37 @@
 package backend.academy.linktracker.scrapper.model;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.Table;
-import java.util.HashSet;
-import java.util.Set;
-import lombok.AllArgsConstructor;
+import backend.academy.linktracker.scrapper.exception.LinkAlreadyTracked;
+import backend.academy.linktracker.scrapper.model.value.ChatId;
 import lombok.Builder;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
 
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
 @Builder
-@Entity
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@Table(name = "chat")
 public class Chat {
-    @Id
-    @EqualsAndHashCode.Include
-    @Column(name = "chat_id")
-    private Long chatId;
-
-    @ManyToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
-    @JoinTable(
-            name = "chat_link",
-            joinColumns = @JoinColumn(name = "chat_id", referencedColumnName = "chat_id"),
-            inverseJoinColumns = @JoinColumn(name = "link_id", referencedColumnName = "link_id"))
+    @Getter
+    private ChatId chatId;
     @Builder.Default
-    private Set<Link> links = new HashSet<>();
+    private Set<Link> links =  new HashSet<>();
+
+    public boolean containsLink(String url) {
+        return links.stream().anyMatch(link -> link.getUrl().equals(url));
+    }
+    public Optional<Link> findLinkByUrl(String url) {
+        return links.stream().filter(link -> link.getUrl().equals(url)).findFirst();
+    }
+
+    public void addLink(Link link) throws LinkAlreadyTracked {
+        if (containsLink(link.getUrl())) {throw new LinkAlreadyTracked();}
+        links.add(link);
+    }
+    public void removeLink(Link link) {
+        links.remove(link);
+    }
+
+    public Set<Link> getLinks() {
+        return Collections.unmodifiableSet(links);
+    }
 }
