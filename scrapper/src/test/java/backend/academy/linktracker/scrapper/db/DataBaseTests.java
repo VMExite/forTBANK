@@ -1,5 +1,9 @@
 package backend.academy.linktracker.scrapper.db;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import backend.academy.linktracker.scrapper.exception.LinkAlreadyTracked;
 import backend.academy.linktracker.scrapper.model.Chat;
@@ -7,6 +11,8 @@ import backend.academy.linktracker.scrapper.model.Link;
 import backend.academy.linktracker.scrapper.model.value.ChatId;
 import backend.academy.linktracker.scrapper.model.value.LinkId;
 import backend.academy.linktracker.scrapper.repository.ChatRepository;
+import java.util.HashSet;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,14 +26,6 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 
-import java.util.HashSet;
-import java.util.Set;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 @SpringBootTest
 @Testcontainers
 @ActiveProfiles("test")
@@ -36,10 +34,10 @@ public abstract class DataBaseTests {
     @Container
     @ServiceConnection
     static final PostgreSQLContainer POSTGRES = new PostgreSQLContainer("postgres:16")
-        .withDatabaseName("test_db")
-        .withUsername("test")
-        .withPassword("test")
-        .withUrlParam("ssl", "false");
+            .withDatabaseName("test_db")
+            .withUsername("test")
+            .withPassword("test")
+            .withUrlParam("ssl", "false");
 
     @DynamicPropertySource
     static void dynamicProperties(DynamicPropertyRegistry registry) {
@@ -58,19 +56,17 @@ public abstract class DataBaseTests {
 
     @BeforeEach
     public void setup() {
-        chatWithoutLink = Chat.builder()
-            .chatId(new ChatId(1L))
-            .links(new HashSet<>())
-            .build();
+        chatWithoutLink =
+                Chat.builder().chatId(new ChatId(1L)).links(new HashSet<>()).build();
         link = Link.builder()
-            .linkId(new LinkId(1L))
-            .url("https://edu.tbank.ru/")
-            .tags(new HashSet<>())
-            .build();
+                .linkId(new LinkId(1L))
+                .url("https://edu.tbank.ru/")
+                .tags(new HashSet<>())
+                .build();
         chatWithLink = Chat.builder()
-            .chatId(new ChatId(1L))
-            .links(new HashSet<>(Set.of(link)))
-            .build();
+                .chatId(new ChatId(1L))
+                .links(new HashSet<>(Set.of(link)))
+                .build();
     }
 
     @Test

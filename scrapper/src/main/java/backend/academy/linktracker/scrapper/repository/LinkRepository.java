@@ -1,3 +1,10 @@
 package backend.academy.linktracker.scrapper.repository;
 
-public interface LinkRepository {}
+import backend.academy.linktracker.scrapper.model.Link;
+import java.time.OffsetDateTime;
+import java.util.List;
+
+public interface LinkRepository {
+    List<Link> findBatch(int size, OffsetDateTime before);
+    void updateAll(List<Link> links);
+}

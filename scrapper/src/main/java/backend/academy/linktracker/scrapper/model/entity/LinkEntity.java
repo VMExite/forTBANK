@@ -46,11 +46,12 @@ public class LinkEntity {
     @ManyToMany(mappedBy = "links", fetch = FetchType.LAZY)
     private Set<ChatEntity> chats = new HashSet<>();
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @ManyToMany(
+            fetch = FetchType.LAZY,
+            cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
-        name = "link_tag",
-        joinColumns = @JoinColumn(name = "link_id", referencedColumnName = "link_id"),
-        inverseJoinColumns = @JoinColumn(name = "tag_id", referencedColumnName = "tag_id")
-    )
+            name = "link_tag",
+            joinColumns = @JoinColumn(name = "link_id", referencedColumnName = "link_id"),
+            inverseJoinColumns = @JoinColumn(name = "tag_id", referencedColumnName = "tag_id"))
     private Set<TagEntity> tags = new HashSet<>();
 }

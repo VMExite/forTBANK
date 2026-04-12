@@ -8,6 +8,7 @@ import lombok.Getter;
 public class Tag {
     @Getter
     private TagId tagId;
+
     @Getter
     private String name;
 }

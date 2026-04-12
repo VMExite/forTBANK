@@ -22,8 +22,12 @@ public class RegistrationServiceImpl implements RegistrationService {
 
     @Override
     public void registerChat(Long id) throws ChatAlreadyExistsException, IllegalArgumentException {
-        if (id == null || id < 0) {throw new IllegalArgumentException();}
-        if (chatRepository.findById(new ChatId(id)).isPresent()) {throw new ChatAlreadyExistsException();}
+        if (id == null || id < 0) {
+            throw new IllegalArgumentException();
+        }
+        if (chatRepository.findById(new ChatId(id)).isPresent()) {
+            throw new ChatAlreadyExistsException();
+        }
 
         Chat chat = chatMapper.fromId(id);
         chatRepository.save(chat);
@@ -32,8 +36,12 @@ public class RegistrationServiceImpl implements RegistrationService {
 
     @Override
     public void deleteChat(Long id) throws ChatNotExistsException, IllegalArgumentException {
-        if (id == null || id < 0) {throw new IllegalArgumentException();}
-        if (chatRepository.findById(new ChatId(id)).isEmpty()) {throw new ChatNotExistsException();}
+        if (id == null || id < 0) {
+            throw new IllegalArgumentException();
+        }
+        if (chatRepository.findById(new ChatId(id)).isEmpty()) {
+            throw new ChatNotExistsException();
+        }
 
         chatRepository.deleteById(new ChatId(id));
         log.info("Chat with id {} has been deleted successfully", id);

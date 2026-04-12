@@ -1,4 +1,4 @@
-package backend.academy.linktracker.scrapper.service;
+package backend.academy.linktracker.scrapper.service.crud;
 
 import backend.academy.linktracker.scrapper.exception.ChatAlreadyExistsException;
 import backend.academy.linktracker.scrapper.exception.ChatNotExistsException;

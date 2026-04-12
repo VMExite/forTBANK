@@ -5,9 +5,6 @@ grpc:
     port: 9092
 
 spring:
-  application:
-    name: scrapper
-    scheduler-interval: PT60S
   datasource:
     url: ${DATASOURCE_URL}
     username: ${DATASOURCE_USER}
@@ -33,6 +30,13 @@ spring:
       import: optional:file:.env[.properties]
 
 app:
+  scheduler:
+    delay: PT60S
+    batch-size: 50
+    threads: 4
+
+
+
   access-type: SQL
   stackoverflow:
     key: ${STACKOVERFLOW_KEY} # Use env variable. DO NOT KEEP TOKEN HERE
@@ -46,4 +50,3 @@ app:
     grpc:
       host: "localhost"
       port: 9091
-debug: true

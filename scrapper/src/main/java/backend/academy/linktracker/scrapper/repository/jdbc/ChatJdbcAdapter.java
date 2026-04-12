@@ -5,15 +5,18 @@ import backend.academy.linktracker.scrapper.model.Chat;
 import backend.academy.linktracker.scrapper.model.Link;
 import backend.academy.linktracker.scrapper.model.Tag;
 import backend.academy.linktracker.scrapper.model.value.ChatId;
+import backend.academy.linktracker.scrapper.model.value.LinkId;
 import backend.academy.linktracker.scrapper.repository.ChatRepository;
+import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-import java.util.Optional;
 
 @Slf4j
 @Repository
@@ -79,52 +82,53 @@ public class ChatJdbcAdapter implements ChatRepository {
     WHERE c.chat_id = :chatId
     """;
 
+    private static final String SELECT_CHAT_ID_BY_LINK_ID = """
+        SELECT chat_id FROM chat_link WHERE link_id = :linkId
+        """;
+
     @Override
     public Optional<Chat> findById(ChatId id) {
-        MapSqlParameterSource params = new MapSqlParameterSource()
-            .addValue("chatId", id.value());
+        SqlParameterSource params = new MapSqlParameterSource().addValue("chatId", id.value());
 
-        return Optional.ofNullable(
-            jdbcTemplate.query(SELECT_CHAT_BY_ID, params, chatRowMapper)
-        );
+        return Optional.ofNullable(jdbcTemplate.query(SELECT_CHAT_BY_ID, params, chatRowMapper));
+    }
+
+    @Override
+    public List<ChatId> findChatIdByListId(LinkId listId) {
+        SqlParameterSource params = new MapSqlParameterSource().addValue("linkId", listId.value());
+
+        List<Long> ids = jdbcTemplate.queryForList(SELECT_CHAT_ID_BY_LINK_ID, params, Long.class);
+        return ids.stream().map(ChatId::new).toList();
     }
 
     @Override
     @Transactional
     public Chat save(Chat chat) {
-        jdbcTemplate.update(INSERT_CHAT,
-            new MapSqlParameterSource("chatId", chat.getChatId().value()));
+        jdbcTemplate.update(
+                INSERT_CHAT,
+                new MapSqlParameterSource("chatId", chat.getChatId().value()));
 
         for (Link link : chat.getLinks()) {
-            jdbcTemplate.update(INSERT_LINK,
-                new MapSqlParameterSource()
-                    .addValue("url", link.getUrl())
-                    .addValue("lastUpdate", link.getLastUpdate())
-            );
+            jdbcTemplate.update(
+                    INSERT_LINK,
+                    new MapSqlParameterSource()
+                            .addValue("url", link.getUrl())
+                            .addValue("lastUpdate", link.getLastUpdate()));
             Long linkId = jdbcTemplate.queryForObject(
-                FIND_LINK_ID,
-                new MapSqlParameterSource("url", link.getUrl()),
-                Long.class
-            );
-            jdbcTemplate.update(INSERT_CHAT_LINK,
-                new MapSqlParameterSource()
-                    .addValue("chatId", chat.getChatId().value())
-                    .addValue("linkId", linkId)
-            );
+                    FIND_LINK_ID, new MapSqlParameterSource("url", link.getUrl()), Long.class);
+            jdbcTemplate.update(
+                    INSERT_CHAT_LINK,
+                    new MapSqlParameterSource()
+                            .addValue("chatId", chat.getChatId().value())
+                            .addValue("linkId", linkId));
             for (Tag tag : link.getTags()) {
-                jdbcTemplate.update(INSERT_TAG,
-                    new MapSqlParameterSource("name", tag.getName()));
+                jdbcTemplate.update(INSERT_TAG, new MapSqlParameterSource("name", tag.getName()));
 
                 Long tagId = jdbcTemplate.queryForObject(
-                    FIND_TAG_ID,
-                    new MapSqlParameterSource("name", tag.getName()),
-                    Long.class
-                );
-                jdbcTemplate.update(INSERT_LINK_TAG,
-                    new MapSqlParameterSource()
-                        .addValue("linkId", linkId)
-                        .addValue("tagId", tagId)
-                );
+                        FIND_TAG_ID, new MapSqlParameterSource("name", tag.getName()), Long.class);
+                jdbcTemplate.update(
+                        INSERT_LINK_TAG,
+                        new MapSqlParameterSource().addValue("linkId", linkId).addValue("tagId", tagId));
             }
         }
 
@@ -134,9 +138,6 @@ public class ChatJdbcAdapter implements ChatRepository {
     @Override
     @Transactional
     public void deleteById(ChatId id) {
-        jdbcTemplate.update(
-            DELETE_CHAT_BY_ID,
-            new MapSqlParameterSource("chatId", id.value())
-        );
+        jdbcTemplate.update(DELETE_CHAT_BY_ID, new MapSqlParameterSource("chatId", id.value()));
     }
 }

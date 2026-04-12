@@ -1,6 +1,6 @@
 package backend.academy.linktracker.scrapper.webclient.bot;
 
-import backend.academy.linktracker.scrapper.dto.LinkUpdateRequest;
+import backend.academy.linktracker.scrapper.dto.LinkUpdateMessage;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.service.annotation.HttpExchange;
 import org.springframework.web.service.annotation.PostExchange;
@@ -9,5 +9,5 @@ import org.springframework.web.service.annotation.PostExchange;
 public interface BotClient {
 
     @PostExchange("/updates")
-    void sendUpdate(@RequestBody LinkUpdateRequest request);
+    void sendUpdate(@RequestBody LinkUpdateMessage request);
 }

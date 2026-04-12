@@ -6,18 +6,20 @@ import backend.academy.linktracker.scrapper.model.Link;
 import backend.academy.linktracker.scrapper.model.entity.ChatEntity;
 import backend.academy.linktracker.scrapper.model.entity.LinkEntity;
 import backend.academy.linktracker.scrapper.model.value.ChatId;
+import backend.academy.linktracker.scrapper.model.value.LinkId;
 import backend.academy.linktracker.scrapper.repository.ChatRepository;
 import backend.academy.linktracker.scrapper.repository.jpa.ChatJpaRepository;
 import backend.academy.linktracker.scrapper.repository.jpa.LinkJpaRepository;
 import backend.academy.linktracker.scrapper.repository.jpa.TagJpaRepository;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
 
 @Slf4j
 @Repository
@@ -33,16 +35,21 @@ public class ChatJpaAdapter implements ChatRepository {
 
     @Override
     public Optional<Chat> findById(ChatId id) {
-        return chatJpaRepository.findWithGraphByChatId(id.value())
-            .map(chatMapper::fromEntity);
+        return chatJpaRepository.findWithGraphByChatId(id.value()).map(chatMapper::fromEntity);
+    }
+
+    @Override
+    public List<ChatId> findChatIdByListId(LinkId listId) {
+        return chatJpaRepository.findChatIdsByLinkId(listId.value()).stream()
+                .map(ChatId::new)
+                .toList();
     }
 
     @Override
     @Transactional
     public Chat save(Chat chat) {
 
-        ChatEntity entity = chatJpaRepository.findById(chat.getChatId().value())
-            .orElseGet(() -> ChatEntity.builder()
+        ChatEntity entity = chatJpaRepository.findById(chat.getChatId().value()).orElseGet(() -> ChatEntity.builder()
                 .chatId(chat.getChatId().value())
                 .links(new HashSet<>())
                 .build());
@@ -50,14 +57,13 @@ public class ChatJpaAdapter implements ChatRepository {
 
         // Todo: need fix
         for (Link link : chat.getLinks()) {
-            LinkEntity linkEntity = linkJpaRepository.findByUrl(link.getUrl())
-                .orElseGet(() -> linkJpaRepository.save(
-                    LinkEntity.builder()
-                        .url(link.getUrl())
-                        .lastUpdate(link.getLastUpdate())
-                        .tags(new HashSet<>())
-                        .build()
-                ));
+            LinkEntity linkEntity = linkJpaRepository
+                    .findByUrl(link.getUrl())
+                    .orElseGet(() -> linkJpaRepository.save(LinkEntity.builder()
+                            .url(link.getUrl())
+                            .lastUpdate(link.getLastUpdate())
+                            .tags(new HashSet<>())
+                            .build()));
 
             newLinks.add(linkEntity);
         }

@@ -13,6 +13,7 @@ public interface IdsMapper {
         }
         return id.value();
     }
+
     default ChatId mapToChatId(Long in) {
         if (in == null) {
             return null;
@@ -26,6 +27,7 @@ public interface IdsMapper {
         }
         return id.value();
     }
+
     default LinkId mapToLinkId(Long in) {
         if (in == null) {
             return null;
@@ -39,6 +41,7 @@ public interface IdsMapper {
         }
         return id.value();
     }
+
     default TagId mapToTagId(Long in) {
         if (in == null) {
             return null;

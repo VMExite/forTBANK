@@ -1,4 +1,3 @@
 package backend.academy.linktracker.scrapper.repository;
 
-public interface TagRepository {
-}
+public interface TagRepository {}

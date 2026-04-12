@@ -11,7 +11,12 @@ import org.springframework.stereotype.Component;
 public class LinkParserHandler {
     private final List<LinkParser> parsers;
 
-    public ParsedLink parse(String url) throws UnsupportedOperationException {
+    /**
+     * try all parsers and execute first capable of parsing
+     * @return interface ParsedLink if LinkParser not supports returns null
+     * @see LinkParser
+     * @see ParsedLink**/
+    public ParsedLink parse(String url) {
         URI uri = URI.create(url);
 
         for (LinkParser parser : parsers) {
@@ -19,6 +24,6 @@ public class LinkParserHandler {
                 return parser.parse(uri);
             }
         }
-        throw new UnsupportedOperationException("Ссылка не поддерживается");
+        return null;
     }
 }

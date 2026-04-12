@@ -13,11 +13,11 @@ import backend.academy.linktracker.scrapper.model.Link;
 import backend.academy.linktracker.scrapper.model.value.ChatId;
 import backend.academy.linktracker.scrapper.repository.ChatRepository;
 import backend.academy.linktracker.scrapper.service.crud.LinksService;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.util.List;
 
 @Slf4j
 @Service
@@ -32,9 +32,9 @@ public class LinksServiceImpl implements LinksService {
         if (chatId == null) {
             throw new IllegalArgumentException();
         }
-        Chat chat = chatRepository.findById(new ChatId(chatId))
-            .orElseThrow(ChatNotExistsException::new);
-        List<LinkResponse> responses = chat.getLinks().stream().map(linkMapper::toResponse).toList();
+        Chat chat = chatRepository.findById(new ChatId(chatId)).orElseThrow(ChatNotExistsException::new);
+        List<LinkResponse> responses =
+                chat.getLinks().stream().map(linkMapper::toResponse).toList();
 
         log.info("Links get from chat {}: size={}", chatId, responses.size());
         return new ListLinkResponse(responses, responses.size());
@@ -42,13 +42,15 @@ public class LinksServiceImpl implements LinksService {
 
     @Override
     @Transactional
-    public LinkResponse createLink(Long chatId, AddLinkRequest request) throws IllegalArgumentException, ChatNotExistsException, LinkAlreadyTracked {
+    public LinkResponse createLink(Long chatId, AddLinkRequest request)
+            throws IllegalArgumentException, ChatNotExistsException, LinkAlreadyTracked {
         if (chatId == null || request == null) {
             throw new IllegalArgumentException();
         }
-        Chat chat = chatRepository.findById(new ChatId(chatId))
-            .orElseThrow(ChatNotExistsException::new);
-        if (chat.containsLink(request.link())) {throw new LinkAlreadyTracked();}
+        Chat chat = chatRepository.findById(new ChatId(chatId)).orElseThrow(ChatNotExistsException::new);
+        if (chat.containsLink(request.link())) {
+            throw new LinkAlreadyTracked();
+        }
 
         Link link = linkMapper.fromAddRequest(request);
         chat.addLink(link);
@@ -60,15 +62,14 @@ public class LinksServiceImpl implements LinksService {
 
     @Override
     @Transactional
-    public LinkResponse removeLink(Long chatId, RemoveLinkRequest request) throws IllegalArgumentException, ChatNotExistsException, LinkNotFoundException {
+    public LinkResponse removeLink(Long chatId, RemoveLinkRequest request)
+            throws IllegalArgumentException, ChatNotExistsException, LinkNotFoundException {
         if (chatId == null || request == null) {
             throw new IllegalArgumentException();
         }
-        Chat chat = chatRepository.findById(new ChatId(chatId))
-            .orElseThrow(ChatNotExistsException::new);
+        Chat chat = chatRepository.findById(new ChatId(chatId)).orElseThrow(ChatNotExistsException::new);
 
-        Link link = chat.findLinkByUrl(request.link())
-            .orElseThrow(LinkNotFoundException::new);
+        Link link = chat.findLinkByUrl(request.link()).orElseThrow(LinkNotFoundException::new);
         chat.removeLink(link);
 
         chatRepository.save(chat);

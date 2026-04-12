@@ -33,11 +33,12 @@ public class ChatEntity {
     @Column(name = "chat_id")
     private Long chatId;
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @ManyToMany(
+            fetch = FetchType.LAZY,
+            cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
-        name = "chat_link",
-        joinColumns = @JoinColumn(name = "chat_id"),
-        inverseJoinColumns = @JoinColumn(name = "link_id")
-    )
+            name = "chat_link",
+            joinColumns = @JoinColumn(name = "chat_id"),
+            inverseJoinColumns = @JoinColumn(name = "link_id"))
     private Set<LinkEntity> links = new HashSet<>();
 }

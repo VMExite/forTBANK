@@ -1,6 +1,6 @@
 package backend.academy.linktracker.scrapper.controller;
 
-import backend.academy.linktracker.scrapper.service.RegistrationService;
+import backend.academy.linktracker.scrapper.service.crud.RegistrationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;

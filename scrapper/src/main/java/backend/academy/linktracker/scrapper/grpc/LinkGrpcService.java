@@ -8,7 +8,7 @@ import backend.academy.linktracker.scrapper.mapper.grpc.AddLinkRequestGrpcMapper
 import backend.academy.linktracker.scrapper.mapper.grpc.LinkResponseGrpcMapper;
 import backend.academy.linktracker.scrapper.mapper.grpc.ListLinkResponseGrpcMapper;
 import backend.academy.linktracker.scrapper.mapper.grpc.RemoveLinkRequestGrpcMapper;
-import backend.academy.linktracker.scrapper.service.LinksService;
+import backend.academy.linktracker.scrapper.service.crud.LinksService;
 import io.grpc.stub.StreamObserver;
 import lombok.RequiredArgsConstructor;
 import net.devh.boot.grpc.server.service.GrpcService;

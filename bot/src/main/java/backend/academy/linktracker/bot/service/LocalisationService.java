@@ -9,13 +9,12 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class LocalisationService {
     private final MessageSource messageSource;
-    // Этого не было в требованиях, но я захотел реализовать локализацию в боте
-    public String getMessage(String key, String languageCode) {
-        Locale locale = Locale.forLanguageTag(languageCode);
-        return messageSource.getMessage(key, null, locale);
+
+    public String getMessage(String key, Locale locale, Object... args) {
+        return messageSource.getMessage(key, args, locale);
     }
 
-    public String getMessage(String key) {
-        return messageSource.getMessage(key, null, Locale.ENGLISH);
+    public String getMessage(String key, Object... args) {
+        return messageSource.getMessage(key,args, Locale.ENGLISH);
     }
 }

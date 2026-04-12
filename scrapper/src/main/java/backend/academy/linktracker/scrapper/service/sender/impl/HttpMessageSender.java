@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class HttpMessageSender implements MessageSender {
     private final BotClient client;
+
     @Override
     public void sendMessage(LinkUpdateMessage request) {
         client.sendUpdate(request);

@@ -2,7 +2,7 @@ package backend.academy.linktracker.scrapper.grpc;
 
 import backend.academy.linktracker.scrapper.ScrapperProto;
 import backend.academy.linktracker.scrapper.TgChatServiceGrpc;
-import backend.academy.linktracker.scrapper.service.RegistrationService;
+import backend.academy.linktracker.scrapper.service.crud.RegistrationService;
 import io.grpc.stub.StreamObserver;
 import lombok.RequiredArgsConstructor;
 import net.devh.boot.grpc.server.service.GrpcService;

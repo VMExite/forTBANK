@@ -36,4 +36,3 @@ logging:
       file: ecs
   file:
     name: log/log.json
-debug: true

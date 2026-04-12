@@ -4,7 +4,7 @@ import backend.academy.linktracker.scrapper.dto.AddLinkRequest;
 import backend.academy.linktracker.scrapper.dto.LinkResponse;
 import backend.academy.linktracker.scrapper.dto.ListLinkResponse;
 import backend.academy.linktracker.scrapper.dto.RemoveLinkRequest;
-import backend.academy.linktracker.scrapper.service.LinksService;
+import backend.academy.linktracker.scrapper.service.crud.LinksService;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;

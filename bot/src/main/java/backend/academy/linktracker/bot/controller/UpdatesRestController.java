@@ -1,6 +1,6 @@
 package backend.academy.linktracker.bot.controller;
 
-import backend.academy.linktracker.bot.dto.LinkUpdate;
+import backend.academy.linktracker.bot.dto.LinkUpdateMessage;
 import backend.academy.linktracker.bot.service.UpdateNotificationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +17,7 @@ public class UpdatesRestController {
     private final UpdateNotificationService updateNotificationService;
 
     @PostMapping
-    public ResponseEntity<Void> handleUpdate(@Valid @RequestBody LinkUpdate update) {
+    public ResponseEntity<Void> handleUpdate(@Valid @RequestBody LinkUpdateMessage update) {
         updateNotificationService.notifyUsers(update);
         return ResponseEntity.ok().build();
     }
