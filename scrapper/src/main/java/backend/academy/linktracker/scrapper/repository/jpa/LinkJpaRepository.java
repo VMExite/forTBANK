@@ -34,6 +34,5 @@ public interface LinkJpaRepository extends JpaRepository<LinkEntity, Long> {
     set l.lastUpdate = :lastUpdate
     where l.linkId = :id
 """)
-    void updateLastUpdate(@Param("id") Long id,
-                          @Param("lastUpdate") OffsetDateTime lastUpdate);
+    void updateLastUpdate(@Param("id") Long id, @Param("lastUpdate") OffsetDateTime lastUpdate);
 }

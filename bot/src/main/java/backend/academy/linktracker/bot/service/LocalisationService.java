@@ -15,6 +15,6 @@ public class LocalisationService {
     }
 
     public String getMessage(String key, Object... args) {
-        return messageSource.getMessage(key,args, Locale.ENGLISH);
+        return messageSource.getMessage(key, args, Locale.ENGLISH);
     }
 }

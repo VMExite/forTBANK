@@ -9,7 +9,6 @@ import backend.academy.linktracker.scrapper.repository.ChatRepository;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import backend.academy.linktracker.scrapper.repository.LinkRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

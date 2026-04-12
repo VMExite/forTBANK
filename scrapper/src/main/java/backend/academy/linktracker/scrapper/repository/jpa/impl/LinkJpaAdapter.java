@@ -33,8 +33,7 @@ public class LinkJpaAdapter implements LinkRepository {
     @Override
     @Transactional
     public void updateLastUpdate(Link link) {
-        LinkEntity entity = linkJpaRepository.findById(link.getLinkId().value())
-            .orElseThrow();
+        LinkEntity entity = linkJpaRepository.findById(link.getLinkId().value()).orElseThrow();
 
         entity.setLastUpdate(link.getLastUpdate());
     }

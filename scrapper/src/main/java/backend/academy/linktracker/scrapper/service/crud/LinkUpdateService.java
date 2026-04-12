@@ -7,5 +7,6 @@ import java.util.List;
 
 public interface LinkUpdateService {
     List<Link> getBatch(int size, OffsetDateTime before);
-    void saveLastUpdates(Link link,List<LinkUpdateMessage> messages);
+
+    void saveLastUpdates(Link link, List<LinkUpdateMessage> messages);
 }

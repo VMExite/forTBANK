@@ -34,16 +34,12 @@ public class LinkUpdateServiceImpl implements LinkUpdateService {
             return;
         }
         OffsetDateTime lastUpdate = messages.stream()
-            .map(LinkUpdateMessage::createdAt)
-            .max(Comparator.naturalOrder())
-            .orElse(link.getLastUpdate());
+                .map(LinkUpdateMessage::createdAt)
+                .max(Comparator.naturalOrder())
+                .orElse(link.getLastUpdate());
 
         link.setLastUpdate(lastUpdate);
         linkRepository.updateLastUpdate(link);
-        log.info(
-            "lastUpdate updated: linkId={}, lastUpdate={}",
-            link.getLinkId(),
-            lastUpdate
-        );
+        log.info("lastUpdate updated: linkId={}, lastUpdate={}", link.getLinkId(), lastUpdate);
     }
 }

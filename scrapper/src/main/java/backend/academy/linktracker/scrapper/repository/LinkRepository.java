@@ -6,5 +6,6 @@ import java.util.List;
 
 public interface LinkRepository {
     List<Link> findBatch(int size, OffsetDateTime before);
+
     void updateLastUpdate(Link link);
 }
