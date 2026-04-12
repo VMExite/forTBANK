@@ -6,6 +6,7 @@ import backend.academy.linktracker.scrapper.model.Link;
 import backend.academy.linktracker.scrapper.repository.LinkRepository;
 import backend.academy.linktracker.scrapper.service.crud.LinkUpdateService;
 import java.time.OffsetDateTime;
+import java.util.Comparator;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,11 +29,21 @@ public class LinkUpdateServiceImpl implements LinkUpdateService {
 
     @Override
     @Transactional
-    public void saveLastUpdates(List<LinkUpdateMessage> messages) {
-        List<Link> links = messages.stream()
-            .map(linkMapper::fromLinkUpdateMessage)
-            .toList();
-        linkRepository.updateAll(links);
-        log.info("links updated: size={}", links.size());
+    public void saveLastUpdates(Link link, List<LinkUpdateMessage> messages) {
+        if (messages == null || messages.isEmpty()) {
+            return;
+        }
+        OffsetDateTime lastUpdate = messages.stream()
+            .map(LinkUpdateMessage::createdAt)
+            .max(Comparator.naturalOrder())
+            .orElse(link.getLastUpdate());
+
+        link.setLastUpdate(lastUpdate);
+        linkRepository.updateLastUpdate(link);
+        log.info(
+            "lastUpdate updated: linkId={}, lastUpdate={}",
+            link.getLinkId(),
+            lastUpdate
+        );
     }
 }

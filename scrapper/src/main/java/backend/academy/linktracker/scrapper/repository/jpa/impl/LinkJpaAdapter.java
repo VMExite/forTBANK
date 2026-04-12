@@ -2,6 +2,7 @@ package backend.academy.linktracker.scrapper.repository.jpa.impl;
 
 import backend.academy.linktracker.scrapper.mapper.LinkMapper;
 import backend.academy.linktracker.scrapper.model.Link;
+import backend.academy.linktracker.scrapper.model.entity.LinkEntity;
 import backend.academy.linktracker.scrapper.repository.LinkRepository;
 import backend.academy.linktracker.scrapper.repository.jpa.LinkJpaRepository;
 import java.time.OffsetDateTime;
@@ -30,7 +31,11 @@ public class LinkJpaAdapter implements LinkRepository {
     }
 
     @Override
-    public void updateAll(List<Link> links) {
+    @Transactional
+    public void updateLastUpdate(Link link) {
+        LinkEntity entity = linkJpaRepository.findById(link.getLinkId().value())
+            .orElseThrow();
 
+        entity.setLastUpdate(link.getLastUpdate());
     }
 }

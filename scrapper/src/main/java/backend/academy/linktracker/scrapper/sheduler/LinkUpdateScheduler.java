@@ -54,6 +54,8 @@ public class LinkUpdateScheduler {
                 for (LinkUpdateMessage msg : messages) {
                     sender.sendMessage(msg);
                 }
+
+                linkUpdateService.saveLastUpdates(link, messages);
             } catch (Exception e) {
                 log.error("Failed to process link={}", link.getUrl(), e);
             }

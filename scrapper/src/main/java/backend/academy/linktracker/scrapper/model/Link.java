@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.Set;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 
 @Builder
 public class Link {
@@ -17,6 +18,7 @@ public class Link {
     private String url;
 
     @Getter
+    @Setter
     @Builder.Default
     private OffsetDateTime lastUpdate = OffsetDateTime.now();
 

@@ -44,13 +44,10 @@ public class LinkJdbcAdapter implements LinkRepository {
     }
 
     @Override
-    public void updateAll(List<Link> links) {
-        SqlParameterSource[] parameters = new MapSqlParameterSource[links.size()];
-        for (int i = 0; i < links.size(); i++) {
-            parameters[i] = new MapSqlParameterSource()
-                .addValue("last_update", links.get(i).getLastUpdate())
-                .addValue("link_id", links.get(i).getLinkId().value());
-        }
-        jdbcTemplate.batchUpdate(UPDATE, parameters);
+    public void updateLastUpdate(Link link) {
+        SqlParameterSource parameters = new MapSqlParameterSource()
+            .addValue("last_update", link.getLastUpdate())
+            .addValue("link_id", link.getLinkId().value());
+        jdbcTemplate.update(UPDATE, parameters);
     }
 }
