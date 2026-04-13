@@ -1,6 +1,6 @@
 package backend.academy.linktracker.scrapper.controller;
 
-import backend.academy.linktracker.scrapper.service.crud.RegistrationService;
+import backend.academy.linktracker.scrapper.service.crud.ChatsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -13,17 +13,17 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/tg-chat")
 @RequiredArgsConstructor
 public class TgChatRestController {
-    private final RegistrationService registrationService;
+    private final ChatsService chatsService;
 
     @PostMapping("/{id}")
     public ResponseEntity<Void> registerChat(@PathVariable Long id) {
-        registrationService.registerChat(id);
+        chatsService.registerChat(id);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteChat(@PathVariable Long id) {
-        registrationService.deleteChat(id);
+        chatsService.deleteChat(id);
         return ResponseEntity.ok().build();
     }
 }

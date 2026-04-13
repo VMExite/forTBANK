@@ -9,7 +9,7 @@ import java.util.Optional;
 public interface ChatRepository {
     Optional<Chat> findById(ChatId id);
 
-    List<ChatId> findChatIdByListId(LinkId listId);
+    List<ChatId> findChatIdByLinkId(LinkId listId);
 
     Chat save(Chat chat);
 

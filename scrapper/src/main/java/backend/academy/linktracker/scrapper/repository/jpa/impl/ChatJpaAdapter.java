@@ -39,7 +39,7 @@ public class ChatJpaAdapter implements ChatRepository {
     }
 
     @Override
-    public List<ChatId> findChatIdByListId(LinkId listId) {
+    public List<ChatId> findChatIdByLinkId(LinkId listId) {
         return chatJpaRepository.findChatIdsByLinkId(listId.value()).stream()
                 .map(ChatId::new)
                 .toList();

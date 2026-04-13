@@ -5,7 +5,7 @@ import backend.academy.linktracker.scrapper.dto.ParsedLink;
 import backend.academy.linktracker.scrapper.model.Link;
 import backend.academy.linktracker.scrapper.model.value.ChatId;
 import backend.academy.linktracker.scrapper.parser.LinkParserHandler;
-import backend.academy.linktracker.scrapper.repository.ChatRepository;
+import backend.academy.linktracker.scrapper.service.crud.ChatsService;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -19,10 +19,9 @@ import org.springframework.stereotype.Service;
 public class LinkExecutorHandler {
     private final Set<LinkExecutor> executors;
     private final LinkParserHandler parserHandler;
-    private final ChatRepository chatRepository;
+    private final ChatsService chatsService;
 
     public List<LinkUpdateMessage> execute(Link link) {
-
         ParsedLink parsed = parserHandler.parse(link.getUrl());
 
         if (parsed == null) {
@@ -35,7 +34,7 @@ public class LinkExecutorHandler {
                 .map(e -> e.execute(link, parsed))
                 .orElse(Collections.emptyList());
 
-        List<ChatId> chatIds = chatRepository.findChatIdByListId(link.getLinkId());
+        List<ChatId> chatIds = chatsService.getChatIdsByLink(link);
 
         return events.stream()
                 .flatMap(event -> chatIds.stream()

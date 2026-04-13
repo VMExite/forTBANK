@@ -1,7 +1,6 @@
 package backend.academy.linktracker.scrapper.service.crud.impl;
 
 import backend.academy.linktracker.scrapper.dto.LinkUpdateMessage;
-import backend.academy.linktracker.scrapper.mapper.LinkMapper;
 import backend.academy.linktracker.scrapper.model.Link;
 import backend.academy.linktracker.scrapper.repository.LinkRepository;
 import backend.academy.linktracker.scrapper.service.crud.LinkUpdateService;
@@ -19,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class LinkUpdateServiceImpl implements LinkUpdateService {
     private final LinkRepository linkRepository;
-    private final LinkMapper linkMapper;
 
     @Override
     public List<Link> getBatch(int size, OffsetDateTime before) {

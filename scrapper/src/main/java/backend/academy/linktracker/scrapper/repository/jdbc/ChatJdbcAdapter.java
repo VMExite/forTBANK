@@ -94,7 +94,7 @@ public class ChatJdbcAdapter implements ChatRepository {
     }
 
     @Override
-    public List<ChatId> findChatIdByListId(LinkId listId) {
+    public List<ChatId> findChatIdByLinkId(LinkId listId) {
         SqlParameterSource params = new MapSqlParameterSource().addValue("linkId", listId.value());
 
         List<Long> ids = jdbcTemplate.queryForList(SELECT_CHAT_ID_BY_LINK_ID, params, Long.class);
