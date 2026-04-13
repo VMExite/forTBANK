@@ -10,9 +10,9 @@ import backend.academy.linktracker.scrapper.dto.LinkUpdateMessage;
 import backend.academy.linktracker.scrapper.service.sender.impl.HttpMessageSender;
 import backend.academy.linktracker.scrapper.webclient.bot.BotClient;
 import com.github.tomakehurst.wiremock.client.WireMock;
-import java.time.OffsetDateTime;
 import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
+import java.time.OffsetDateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
@@ -26,35 +26,25 @@ class HttpMessageSenderTest {
 
     private HttpMessageSender sender;
 
-    private static final LinkUpdateMessage REQUEST = new LinkUpdateMessage(
-        1L,
-        1L,
-        "test",
-        "user",
-        "test preview",
-        "http:example.com",
-        OffsetDateTime.now()
-    );
+    private static final LinkUpdateMessage REQUEST =
+            new LinkUpdateMessage(1L, 1L, "test", "user", "test preview", "http:example.com", OffsetDateTime.now());
 
     @BeforeEach
     void setUp(WireMockRuntimeInfo wm) {
 
         String baseUrl = wm.getHttpBaseUrl();
 
-        BotClient client = HttpServiceProxyFactory
-            .builderFor(
-                RestClientAdapter.create(RestClient.builder().baseUrl(baseUrl).build())
-            )
-            .build()
-            .createClient(BotClient.class);
+        BotClient client = HttpServiceProxyFactory.builderFor(RestClientAdapter.create(
+                        RestClient.builder().baseUrl(baseUrl).build()))
+                .build()
+                .createClient(BotClient.class);
 
         sender = new HttpMessageSender(client);
     }
 
     @Test
     void testGreenSendUpdates() {
-        WireMock.stubFor(post("/updates")
-            .willReturn(aResponse().withStatus(HttpStatus.OK.value())));
+        WireMock.stubFor(post("/updates").willReturn(aResponse().withStatus(HttpStatus.OK.value())));
 
         sender.sendMessage(REQUEST);
 
@@ -63,11 +53,8 @@ class HttpMessageSenderTest {
 
     @Test
     void testFailSendUpdates() {
-        WireMock.stubFor(post("/updates")
-            .willReturn(aResponse().withStatus(HttpStatus.INTERNAL_SERVER_ERROR.value())));
+        WireMock.stubFor(post("/updates").willReturn(aResponse().withStatus(HttpStatus.INTERNAL_SERVER_ERROR.value())));
 
-        assertThrows(RestClientException.class, () ->
-            sender.sendMessage(REQUEST)
-        );
+        assertThrows(RestClientException.class, () -> sender.sendMessage(REQUEST));
     }
 }
