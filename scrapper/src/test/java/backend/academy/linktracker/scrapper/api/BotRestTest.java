@@ -4,72 +4,70 @@ import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import backend.academy.linktracker.scrapper.ScrapperApplication;
 import backend.academy.linktracker.scrapper.dto.LinkUpdateMessage;
 import backend.academy.linktracker.scrapper.service.sender.impl.HttpMessageSender;
-import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
+import backend.academy.linktracker.scrapper.webclient.bot.BotClient;
+import com.github.tomakehurst.wiremock.client.WireMock;
 import java.time.OffsetDateTime;
+import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo;
+import com.github.tomakehurst.wiremock.junit5.WireMockTest;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.RegisterExtension;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.support.RestClientAdapter;
+import org.springframework.web.service.invoker.HttpServiceProxyFactory;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = ScrapperApplication.class)
-class BotRestTest {
+@WireMockTest(httpPort = 0)
+class HttpMessageSenderTest {
 
-    @Autowired
     private HttpMessageSender sender;
 
-    @RegisterExtension
-    static WireMockExtension wireMock = WireMockExtension.newInstance()
-            .options(wireMockConfig().dynamicPort())
-            .build();
+    private static final LinkUpdateMessage REQUEST = new LinkUpdateMessage(
+        1L,
+        1L,
+        "test",
+        "user",
+        "test preview",
+        "http:example.com",
+        OffsetDateTime.now()
+    );
 
-    @DynamicPropertySource
-    static void registerProps(DynamicPropertyRegistry registry) {
-        registry.add("app.bot.base-url", wireMock::baseUrl);
+    @BeforeEach
+    void setUp(WireMockRuntimeInfo wm) {
+
+        String baseUrl = wm.getHttpBaseUrl();
+
+        BotClient client = HttpServiceProxyFactory
+            .builderFor(
+                RestClientAdapter.create(RestClient.builder().baseUrl(baseUrl).build())
+            )
+            .build()
+            .createClient(BotClient.class);
+
+        sender = new HttpMessageSender(client);
     }
 
     @Test
     void testGreenSendUpdates() {
-        wireMock.stubFor(post(urlEqualTo("/updates")).willReturn(aResponse().withStatus(HttpStatus.OK.value())));
+        WireMock.stubFor(post("/updates")
+            .willReturn(aResponse().withStatus(HttpStatus.OK.value())));
 
-        LinkUpdateMessage request = new LinkUpdateMessage(
-                1L,
-                100L,
-                "New issue",
-                "vexi",
-                "short preview",
-                "https://github.com/test/repo/issues/1",
-                OffsetDateTime.now());
+        sender.sendMessage(REQUEST);
 
-        assertDoesNotThrow(() -> sender.sendMessage(request));
-
-        wireMock.verify(postRequestedFor(urlEqualTo("/updates")));
+        WireMock.verify(postRequestedFor(urlEqualTo("/updates")));
     }
 
     @Test
     void testFailSendUpdates() {
-        wireMock.stubFor(post(urlEqualTo("/updates"))
-                .willReturn(aResponse().withStatus(HttpStatus.INTERNAL_SERVER_ERROR.value())));
+        WireMock.stubFor(post("/updates")
+            .willReturn(aResponse().withStatus(HttpStatus.INTERNAL_SERVER_ERROR.value())));
 
-        LinkUpdateMessage request = new LinkUpdateMessage(
-                1L,
-                100L,
-                "New issue",
-                "vexi",
-                "short preview",
-                "https://github.com/test/repo/issues/1",
-                OffsetDateTime.now());
-
-        assertThrows(RestClientException.class, () -> sender.sendMessage(request));
+        assertThrows(RestClientException.class, () ->
+            sender.sendMessage(REQUEST)
+        );
     }
 }
