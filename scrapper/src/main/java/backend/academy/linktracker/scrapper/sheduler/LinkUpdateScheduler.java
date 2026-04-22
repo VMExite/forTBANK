@@ -2,12 +2,16 @@ package backend.academy.linktracker.scrapper.sheduler;
 
 import backend.academy.linktracker.scrapper.dto.LinkUpdateMessage;
 import backend.academy.linktracker.scrapper.model.Link;
+import backend.academy.linktracker.scrapper.model.value.ChatId;
 import backend.academy.linktracker.scrapper.properties.SchedulerProperties;
+import backend.academy.linktracker.scrapper.service.crud.ChatsService;
 import backend.academy.linktracker.scrapper.service.crud.LinkUpdateService;
 import backend.academy.linktracker.scrapper.service.executor.LinkExecutorHandler;
 import backend.academy.linktracker.scrapper.service.sender.MessageSender;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -23,6 +27,7 @@ import org.springframework.stereotype.Service;
 public class LinkUpdateScheduler {
     private final SchedulerProperties schedulerProperties;
     private final LinkUpdateService linkUpdateService;
+    private final ChatsService chatsService;
     private final LinkExecutorHandler executorHandler;
     private final MessageSender sender;
     private final ExecutorService executorService;
@@ -40,24 +45,50 @@ public class LinkUpdateScheduler {
     private void processBatch(List<Link> batch) {
         long threads = schedulerProperties.getThreads();
         List<List<Link>> partitions = partition(batch, threads);
+
+        Collection<Link> failedLinks = Collections.synchronizedCollection(new ArrayList<>());
+
         List<Future<?>> futures = new ArrayList<>();
         for (List<Link> part : partitions) {
-            futures.add(executorService.submit(() -> processChunk(part)));
+            futures.add(executorService.submit(() -> processChunk(part, failedLinks)));
         }
         waitAll(futures);
+        processFailedLinks(failedLinks);
     }
 
-    private void processChunk(List<Link> links) {
+    private void processFailedLinks(Collection<Link> failedLinks) {
+        for (Link link : failedLinks) {
+            List<ChatId> chatIds = chatsService.getChatIdsByLink(link);
+            for (ChatId chatId : chatIds) {
+                sender.sendMessage(
+                    new LinkUpdateMessage(
+                        chatId.value(),
+                        link.getLinkId().value(),
+                        "Failed process link",
+                        null,
+                        null,
+                        link.getUrl(),
+                        OffsetDateTime.now()
+                    )
+                );
+            }
+        }
+    }
+
+    private void processChunk(List<Link> links, Collection<Link> failedLinks) {
         for (Link link : links) {
+            List<ChatId> chatIds = chatsService.getChatIdsByLink(link);
             try {
-                List<LinkUpdateMessage> messages = executorHandler.execute(link);
+                List<LinkUpdateMessage> messages = executorHandler.execute(link, chatIds);
+
                 for (LinkUpdateMessage msg : messages) {
                     sender.sendMessage(msg);
                 }
 
                 linkUpdateService.saveLastUpdates(link, messages);
             } catch (Exception e) {
-                log.error("Failed to process link={}", link.getUrl(), e);
+                log.warn("Failed to process link={}", link.getUrl(), e);
+                failedLinks.add(link);
             }
         }
     }
