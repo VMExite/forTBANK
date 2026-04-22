@@ -1,5 +1,7 @@
 package backend.academy.linktracker.scrapper.properties;
 
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.EqualsAndHashCode;
@@ -17,10 +19,15 @@ import org.springframework.validation.annotation.Validated;
 @NoArgsConstructor
 public class SchedulerProperties {
     @NotNull
-    @Positive
+    @Min(50)
+    @Max(500)
     private Integer batchSize;
 
     @NotNull
     @Positive
     private Integer threads;
+
+    @NotNull
+    @Positive
+    private Integer terminationAwaitMillis;
 }
