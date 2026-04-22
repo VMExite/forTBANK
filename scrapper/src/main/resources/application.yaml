@@ -2,7 +2,7 @@ server:
   port: 8081
 grpc:
   server:
-    port: 9092
+    port: 9093
 
 spring:
   datasource:
@@ -26,6 +26,13 @@ spring:
     user: ${DATASOURCE_USER}
     password: ${DATASOURCE_PASSWORD}
 
+  kafka:
+    bootstrap-servers: localhost:19092
+    producer:
+      acks: 1
+      key-serializer: org.apache.kafka.common.serialization.LongSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
   config:
       import: optional:file:.env[.properties]
 
@@ -34,9 +41,14 @@ app:
     delay: PT60S
     batch-size: 50
     threads: 4
+    termination-await-millis: 90000
 
+  kafka:
+    topic-link-update: linkUpdateEvent
+    partitions: 1
+    replicas: 1
 
-
+  message-sending-type: KAFKA
   access-type: SQL
   stackoverflow:
     key: ${STACKOVERFLOW_KEY} # Use env variable. DO NOT KEEP TOKEN HERE
