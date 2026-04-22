@@ -5,12 +5,14 @@ import backend.academy.linktracker.scrapper.service.sender.MessageSender;
 import backend.academy.linktracker.scrapper.webclient.bot.BotClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@ConditionalOnProperty(name = "app.message-sending-type", havingValue = "REST")
 public class HttpMessageSender implements MessageSender {
     private final BotClient client;
 

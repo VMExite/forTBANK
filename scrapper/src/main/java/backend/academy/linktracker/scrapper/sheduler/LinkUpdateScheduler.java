@@ -60,17 +60,14 @@ public class LinkUpdateScheduler {
         for (Link link : failedLinks) {
             List<ChatId> chatIds = chatsService.getChatIdsByLink(link);
             for (ChatId chatId : chatIds) {
-                sender.sendMessage(
-                    new LinkUpdateMessage(
+                sender.sendMessage(new LinkUpdateMessage(
                         chatId.value(),
                         link.getLinkId().value(),
                         "Failed process link",
                         null,
                         null,
                         link.getUrl(),
-                        OffsetDateTime.now()
-                    )
-                );
+                        OffsetDateTime.now()));
             }
         }
     }
