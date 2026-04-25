@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+  kafka-1:
+    image: apache/kafka:3.9.1
+    container_name: kafka-1
+    hostname: kafka-1
+    ports:
+      - "19092:19092" # клиент
+      - "19090:19090" # inter-broker
+      - "19091:19091" # controller
+    environment:
+      KAFKA_NODE_ID: 0
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 0@kafka-1:19091,1@kafka-2:19091,2@kafka-3:19091
+      KAFKA_LISTENERS: BROKER://0.0.0.0:19090,CONTROLLER://0.0.0.0:19091,DOCKER://0.0.0.0:19092
+      KAFKA_ADVERTISED_LISTENERS: BROKER://kafka-1:19090,DOCKER://localhost:19092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,BROKER:PLAINTEXT,DOCKER:PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_INTER_BROKER_LISTENER_NAME: BROKER
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
+
+  kafka-2:
+    image: apache/kafka:3.9.1
+    container_name: kafka-2
+    hostname: kafka-2
+    ports:
+      - "19093:19092"
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 0@kafka-1:19091,1@kafka-2:19091,2@kafka-3:19091
+      KAFKA_LISTENERS: BROKER://0.0.0.0:19090,CONTROLLER://0.0.0.0:19091,DOCKER://0.0.0.0:19092
+      KAFKA_ADVERTISED_LISTENERS: BROKER://kafka-2:19090,DOCKER://localhost:19093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,BROKER:PLAINTEXT,DOCKER:PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_INTER_BROKER_LISTENER_NAME: BROKER
+
+  kafka-3:
+    image: apache/kafka:3.9.1
+    container_name: kafka-3
+    hostname: kafka-3
+    ports:
+      - "19094:19092"
+    environment:
+      KAFKA_NODE_ID: 2
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 0@kafka-1:19091,1@kafka-2:19091,2@kafka-3:19091
+      KAFKA_LISTENERS: BROKER://0.0.0.0:19090,CONTROLLER://0.0.0.0:19091,DOCKER://0.0.0.0:19092
+      KAFKA_ADVERTISED_LISTENERS: BROKER://kafka-3:19090,DOCKER://localhost:19094
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,BROKER:PLAINTEXT,DOCKER:PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_INTER_BROKER_LISTENER_NAME: BROKER
+
+  kafbat-ui:
+    container_name: kafbat-ui
+    image: ghcr.io/kafbat/kafka-ui:latest
+    ports:
+      - '8082:8080'
+    environment:
+      DYNAMIC_CONFIG_ENABLED: 'true'
+      SWAGGER_UI_ENABLED: 'true'
+      KAFKA_CLUSTERS_0_NAME: 'local-kafka'
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: 'kafka-1:19090,kafka-2:19090,kafka-3:19090'
+      KAFKA_CLUSTERS_0_PROPERTIES_SECURITY_PROTOCOL: 'PLAINTEXT'
+      LOGGING_LEVEL_IO_KAFBAT: 'DEBUG'
+
+networks:
+  default:
+    driver: bridge

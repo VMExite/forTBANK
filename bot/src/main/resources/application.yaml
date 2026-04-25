@@ -12,6 +12,16 @@ spring:
   messages:
     encoding: UTF-8
 
+  kafka:
+    bootstrap-servers: localhost:19092
+    consumer:
+      group-id: linkUpdateGroup
+      key-deserializer: org.apache.kafka.common.serialization.LongDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.type.mapping: "linkUpdateEvent:backend.academy.linktracker.bot.dto.LinkUpdateMessage"
+
+
 app:
   telegram:
     url: https://api.telegram.org/bot
