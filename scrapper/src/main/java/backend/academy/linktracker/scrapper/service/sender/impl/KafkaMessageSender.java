@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 // kafka producer
 public class KafkaMessageSender implements MessageSender {
     private final KafkaTemplate<@NonNull Long, @NonNull LinkUpdateMessage> kafkaTemplate;
-    private final KafkaProperties  kafkaProperties;
+    private final KafkaProperties kafkaProperties;
 
     @Override
     public void sendMessage(LinkUpdateMessage message) {

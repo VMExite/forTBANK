@@ -17,6 +17,7 @@ import org.springframework.validation.annotation.Validated;
 public class KafkaProperties {
     @Min(1)
     private Long retryInterval;
+
     @Min(1)
     private Long retryMaxAttempts;
 }

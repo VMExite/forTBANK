@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class KafkaController {
     private final KafkaMessageSender kafkaProducer;
+
     @PostMapping
     public ResponseEntity<@NonNull LinkUpdateMessage> sendMessage(@RequestBody LinkUpdateMessage linkUpdateMessage) {
         log.info("Received request to send link update message: {}", linkUpdateMessage);

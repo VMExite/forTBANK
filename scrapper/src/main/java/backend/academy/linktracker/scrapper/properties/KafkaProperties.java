@@ -30,5 +30,4 @@ public class KafkaProperties {
     @Min(1)
     @Max(20)
     private Short replicas = 1;
-
 }

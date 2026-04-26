@@ -1,8 +1,17 @@
 package backend.academy.linktracker.scrapper.kafka;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import backend.academy.linktracker.scrapper.dto.LinkUpdateMessage;
 import backend.academy.linktracker.scrapper.properties.KafkaProperties;
 import backend.academy.linktracker.scrapper.service.sender.impl.KafkaMessageSender;
+import java.time.Duration;
+import java.time.OffsetDateTime;
+import java.util.Collections;
+import java.util.Spliterator;
+import java.util.Spliterators;
+import java.util.UUID;
+import java.util.stream.StreamSupport;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -19,16 +28,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.kafka.KafkaContainer;
-import java.time.Duration;
-import java.time.OffsetDateTime;
-import java.util.Collections;
-import java.util.Spliterator;
-import java.util.Spliterators;
-import java.util.UUID;
-import java.util.stream.StreamSupport;
-
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 
 @Testcontainers
 @ExtendWith(SpringExtension.class)
@@ -52,6 +51,7 @@ public class KafkaSenderIntegrationTest {
     static void setUp() {
         kafkaContainer.start();
     }
+
     @AfterAll
     static void tearDown() {
         kafkaContainer.stop();
@@ -65,21 +65,20 @@ public class KafkaSenderIntegrationTest {
     @Test
     public void greenWayTest() {
         LinkUpdateMessage message = new LinkUpdateMessage(
-            1L,
-            1L,
-            UUID.randomUUID().toString(),
-            UUID.randomUUID().toString(),
-            UUID.randomUUID().toString(),
-            UUID.randomUUID().toString(),
-            OffsetDateTime.now()
-        );
+                1L,
+                1L,
+                UUID.randomUUID().toString(),
+                UUID.randomUUID().toString(),
+                UUID.randomUUID().toString(),
+                UUID.randomUUID().toString(),
+                OffsetDateTime.now());
         sender.sendMessage(message);
 
         ConsumerRecords<Long, LinkUpdateMessage> records = consumer.poll(Duration.ofSeconds(5));
-        boolean found = StreamSupport
-            .stream(Spliterators.spliteratorUnknownSize(records.iterator(), Spliterator.ORDERED),
-            false) // consumer returns iterator need wrap it to stream
-            .anyMatch(r -> r.value().equals(message));
+        boolean found = StreamSupport.stream(
+                        Spliterators.spliteratorUnknownSize(records.iterator(), Spliterator.ORDERED),
+                        false) // consumer returns iterator need wrap it to stream
+                .anyMatch(r -> r.value().equals(message));
 
         assertTrue(found);
     }

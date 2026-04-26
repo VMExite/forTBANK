@@ -21,11 +21,10 @@ public class KafkaConfig {
         short replicas = kafkaProperties.getReplicas();
 
         log.info("TOPIC {} PARTITIONS {} REPLICAS {}", topic, partitions, replicas);
-        return TopicBuilder
-            .name(topic)
-            .partitions(partitions)
-            .replicas(replicas)
-            .build();
+        return TopicBuilder.name(topic)
+                .partitions(partitions)
+                .replicas(replicas)
+                .build();
     }
 
     @Bean
@@ -34,10 +33,9 @@ public class KafkaConfig {
         int partitions = kafkaProperties.getPartitions();
         short replicas = kafkaProperties.getReplicas();
 
-        return TopicBuilder
-            .name(topic)
-            .partitions(partitions)
-            .replicas(replicas)
-            .build();
+        return TopicBuilder.name(topic)
+                .partitions(partitions)
+                .replicas(replicas)
+                .build();
     }
 }

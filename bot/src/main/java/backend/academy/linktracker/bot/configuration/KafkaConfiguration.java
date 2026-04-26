@@ -21,19 +21,14 @@ public class KafkaConfiguration {
     private final KafkaProperties properties;
 
     @Bean
-    public DefaultErrorHandler errorHandler(KafkaTemplate<@NonNull Long,@NonNull LinkUpdateMessage> template) {
-        DeadLetterPublishingRecoverer recoverer =
-            new DeadLetterPublishingRecoverer(template);
-        FixedBackOff backOff =
-            new FixedBackOff(properties.getRetryInterval(), properties.getRetryMaxAttempts());
+    public DefaultErrorHandler errorHandler(KafkaTemplate<@NonNull Long, @NonNull LinkUpdateMessage> template) {
+        DeadLetterPublishingRecoverer recoverer = new DeadLetterPublishingRecoverer(template);
+        FixedBackOff backOff = new FixedBackOff(properties.getRetryInterval(), properties.getRetryMaxAttempts());
 
         DefaultErrorHandler handler = new DefaultErrorHandler(recoverer, backOff);
         handler.addRetryableExceptions(RetryableException.class);
         handler.addNotRetryableExceptions(
-            NotRetryableException.class,
-            DeserializationException.class,
-            SerializationException.class
-        );
+                NotRetryableException.class, DeserializationException.class, SerializationException.class);
 
         return handler;
     }
