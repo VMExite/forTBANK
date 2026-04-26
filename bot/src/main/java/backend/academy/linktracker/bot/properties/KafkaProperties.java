@@ -1,8 +1,6 @@
-package backend.academy.linktracker.scrapper.properties;
+package backend.academy.linktracker.bot.properties;
 
-import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotEmpty;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,18 +15,8 @@ import org.springframework.validation.annotation.Validated;
 @EqualsAndHashCode
 @NoArgsConstructor
 public class KafkaProperties {
-    @NotEmpty
-    private String topicLinkUpdate;
-
-    @NotEmpty
-    private String dltSuffix;
-
     @Min(1)
-    @Max(50)
-    private Integer partitions = 1;
-
+    private Long retryInterval;
     @Min(1)
-    @Max(20)
-    private Short replicas = 1;
-
+    private Long retryMaxAttempts;
 }

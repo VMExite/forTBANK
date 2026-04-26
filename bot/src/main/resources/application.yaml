@@ -15,12 +15,15 @@ spring:
   kafka:
     bootstrap-servers: localhost:19092
     consumer:
-      group-id: linkUpdateGroup
-      key-deserializer: org.apache.kafka.common.serialization.LongDeserializer
-      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      key-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
       properties:
+        spring.deserializer.key.delegate.class: org.apache.kafka.common.serialization.LongDeserializer
+        spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
         spring.json.type.mapping: "linkUpdateEvent:backend.academy.linktracker.bot.dto.LinkUpdateMessage"
-
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.ByteArraySerializer
+      value-serializer: org.apache.kafka.common.serialization.ByteArraySerializer
 
 app:
   telegram:
@@ -28,6 +31,10 @@ app:
     token: ${TELEGRAM_TOKEN} # Use env variable. DO NOT KEEP TOKEN HERE
     update-listener-sleep: 1s
     debug: false
+  kafka:
+    retry-interval: 1000
+    retry-max-attempts: 3
+
   message:
     basename: classpath:messages
   scrapper:

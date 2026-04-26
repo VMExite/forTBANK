@@ -49,6 +49,7 @@ app:
     topic-link-update: linkUpdateEvent
     partitions: 3
     replicas: 2
+    dlt-suffix: -dlt
 
   message-sending-type: KAFKA
   access-type: SQL

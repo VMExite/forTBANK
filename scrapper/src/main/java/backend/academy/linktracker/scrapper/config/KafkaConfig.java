@@ -27,4 +27,17 @@ public class KafkaConfig {
             .replicas(replicas)
             .build();
     }
+
+    @Bean
+    public NewTopic linkUpdateDlt() {
+        String topic = kafkaProperties.getTopicLinkUpdate() + kafkaProperties.getDltSuffix();
+        int partitions = kafkaProperties.getPartitions();
+        short replicas = kafkaProperties.getReplicas();
+
+        return TopicBuilder
+            .name(topic)
+            .partitions(partitions)
+            .replicas(replicas)
+            .build();
+    }
 }
