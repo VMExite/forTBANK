@@ -18,6 +18,10 @@ public class UpdateKafkaConsumer {
 
     @KafkaListener(topics = "linkUpdateEvent", groupId = "linkUpdateGroup")
     public void consume(ConsumerRecord<Long, LinkUpdateMessage> consumerRecord) {
+        log.info("RECEIVED topic={}, key={}, value={}",
+            consumerRecord.topic(),
+            consumerRecord.key(),
+            consumerRecord.value());
         if (consumerRecord.value() == null) {
             log.info("Consumer fail deserialization: {}", consumerRecord.topic());
             throw new NotRetryableException("Deserialization fail");
