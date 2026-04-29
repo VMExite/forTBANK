@@ -6,7 +6,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-@ConditionalOnProperty(name = "app.access-type", havingValue = "ORM")
+@ConditionalOnProperty(name = "app.access-type", havingValue = "SQL")
 @Repository
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
