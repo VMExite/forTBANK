@@ -5,6 +5,10 @@ grpc:
     port: 9091
 
 spring:
+  devtools:
+    restart:
+      enabled: false
+
   application:
     name: bot
   config:
@@ -17,16 +21,21 @@ spring:
     consumer:
       key-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      group-id: linkUpdateGroup
+
       properties:
         spring.deserializer.key.delegate.class: org.apache.kafka.common.serialization.LongDeserializer
-        spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
-        spring.json.type.mapping: "linkUpdateEvent:backend.academy.linktracker.bot.dto.LinkUpdateMessage"
-      enable-auto-commit: false
+        spring.deserializer.value.delegate.class: io.confluent.kafka.serializers.KafkaAvroDeserializer
+        schema.registry.url: http://localhost:8083
+        specific.avro.reader: true
+
     producer:
       key-serializer: org.apache.kafka.common.serialization.LongSerializer
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      value-serializer: io.confluent.kafka.serializers.KafkaAvroSerializer
+
       properties:
-        spring.json.type.mapping: "linkUpdateEvent:backend.academy.linktracker.bot.dto.LinkUpdateMessage"
+        schema.registry.url: http://localhost:8083
+
 
 app:
   telegram:
@@ -50,7 +59,7 @@ app:
 logging:
 
   level:
-    org.springframework.kafka: DEBUG
+    org.springframework.kafka: INFO
     org.apache.kafka: INFO
     root: info
   structured:
@@ -59,3 +68,4 @@ logging:
       file: ecs
   file:
     name: log/log.json
+

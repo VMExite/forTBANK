@@ -1,6 +1,8 @@
 package backend.academy.linktracker.scrapper.service.sender.impl;
 
+import backend.academy.linktracker.dto.kafka.LinkUpdateAvroMessage;
 import backend.academy.linktracker.scrapper.dto.LinkUpdateMessage;
+import backend.academy.linktracker.scrapper.mapper.AvroMapper;
 import backend.academy.linktracker.scrapper.properties.KafkaProperties;
 import backend.academy.linktracker.scrapper.service.sender.MessageSender;
 import lombok.NonNull;
@@ -16,12 +18,16 @@ import org.springframework.stereotype.Service;
 @ConditionalOnProperty(name = "app.message-sending-type", havingValue = "KAFKA", matchIfMissing = true)
 // kafka producer
 public class KafkaMessageSender implements MessageSender {
-    private final KafkaTemplate<@NonNull Long, @NonNull LinkUpdateMessage> kafkaTemplate;
+    private final KafkaTemplate<@NonNull Long, @NonNull LinkUpdateAvroMessage> kafkaTemplate;
     private final KafkaProperties kafkaProperties;
+    private final AvroMapper avroMapper;
 
     @Override
     public void sendMessage(LinkUpdateMessage message) {
-        log.warn("KAFKA message sending is don't implemented yet");
-        kafkaTemplate.send(kafkaProperties.getTopicLinkUpdate(), message.chatId(), message);
+        LinkUpdateAvroMessage avroMessage = avroMapper.toAvro(message);
+
+        log.info("KAFKA PRODUCER send avro message: {}", avroMessage);
+        kafkaTemplate
+            .send(kafkaProperties.getTopicLinkUpdate(), avroMessage.getChatId(), avroMessage);
     }
 }

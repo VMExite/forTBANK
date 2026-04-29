@@ -1,0 +1,38 @@
+{
+    "type": "record",
+    "name": "LinkUpdateAvroMessage",
+    "namespace": "backend.academy.linktracker.dto.kafka",
+    "fields": [
+        {
+            "name": "chatId",
+            "type": "long"
+        },
+        {
+            "name": "linkId",
+            "type": "long"
+        },
+        {
+            "name": "title",
+            "type": "string"
+        },
+        {
+            "name": "username",
+            "type": "string"
+        },
+        {
+            "name": "preview",
+            "type": "string"
+        },
+        {
+            "name": "url",
+            "type": "string"
+        },
+        {
+            "name": "createdAt",
+            "type": {
+                "type": "long",
+                "logicalType": "timestamp-millis"
+            }
+        }
+    ]
+}
