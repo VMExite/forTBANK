@@ -9,5 +9,7 @@
 
     <include relativeToChangelogFile="true" file="00-initial-schema.sql"/>
     <include relativeToChangelogFile="true" file="01-add-indexes.sql"/>
+    <include relativeToChangelogFile="true" file="02-create-outbox.sql"/>
+    <include relativeToChangelogFile="true" file="04-increment-outbox-event-type-length.sql"/>
 
 </databaseChangeLog>

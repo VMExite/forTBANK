@@ -1,11 +1,16 @@
 package backend.academy.linktracker.scrapper.sheduler;
 
 import backend.academy.linktracker.scrapper.dto.LinkUpdateMessage;
+import backend.academy.linktracker.scrapper.mapper.OutboxEventMapper;
+import backend.academy.linktracker.scrapper.model.EventStatus;
+import backend.academy.linktracker.scrapper.model.EventType;
 import backend.academy.linktracker.scrapper.model.Link;
+import backend.academy.linktracker.scrapper.model.OutboxEvent;
 import backend.academy.linktracker.scrapper.model.value.ChatId;
 import backend.academy.linktracker.scrapper.properties.SchedulerProperties;
 import backend.academy.linktracker.scrapper.service.crud.ChatsService;
 import backend.academy.linktracker.scrapper.service.crud.LinkUpdateService;
+import backend.academy.linktracker.scrapper.service.crud.OutboxEventService;
 import backend.academy.linktracker.scrapper.service.executor.LinkExecutorHandler;
 import backend.academy.linktracker.scrapper.service.sender.MessageSender;
 import java.time.OffsetDateTime;
@@ -13,24 +18,51 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import com.google.common.collect.Lists;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import tools.jackson.databind.ObjectMapper;
+
+import static org.apache.commons.lang3.SerializationUtils.serialize;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class LinkUpdateScheduler {
     private final SchedulerProperties schedulerProperties;
     private final LinkUpdateService linkUpdateService;
     private final ChatsService chatsService;
     private final LinkExecutorHandler executorHandler;
-    private final MessageSender sender;
+    private final OutboxEventService outboxEventService;
     private final ExecutorService executorService;
+    private final OutboxEventMapper outboxEventMapper;
+
+    public LinkUpdateScheduler(
+        SchedulerProperties schedulerProperties,
+        LinkUpdateService linkUpdateService,
+        ChatsService chatsService,
+        LinkExecutorHandler executorHandler,
+        OutboxEventService outboxEventService,
+        @Qualifier("schedulerExecutor") ExecutorService executorService,
+        OutboxEventMapper outboxEventMapper
+    ) {
+        this.schedulerProperties = schedulerProperties;
+        this.linkUpdateService = linkUpdateService;
+        this.chatsService = chatsService;
+        this.executorHandler = executorHandler;
+        this.outboxEventService = outboxEventService;
+        this.executorService = executorService;
+        this.outboxEventMapper = outboxEventMapper;
+    }
+
 
     @Scheduled(fixedDelayString = "${app.scheduler.delay}")
     public void update() {
@@ -39,75 +71,76 @@ public class LinkUpdateScheduler {
         if (batch.isEmpty()) {
             return;
         }
-        processBatch(batch);
+        processBatch(batch, now);
     }
 
-    private void processBatch(List<Link> batch) {
-        long threads = schedulerProperties.getThreads();
-        List<List<Link>> partitions = partition(batch, threads);
+    private void processBatch(List<Link> batch, OffsetDateTime batchTime) {
+        int threads = schedulerProperties.getThreads();
+        List<List<Link>> partitions = Lists.partition(batch,
+            (int) Math.ceil((double) batch.size() / threads));
 
-        Collection<Link> failedLinks = Collections.synchronizedCollection(new ArrayList<>());
+        Map<Link, List<ChatId>> failedLinks = new ConcurrentHashMap<>();
 
-        List<Future<?>> futures = new ArrayList<>();
-        for (List<Link> part : partitions) {
-            futures.add(executorService.submit(() -> processChunk(part, failedLinks)));
-        }
-        waitAll(futures);
-        processFailedLinks(failedLinks);
-    }
+        List<CompletableFuture<Void>> futures = partitions.stream()
+            .map(part -> CompletableFuture.runAsync(
+                () -> processChunk(part, failedLinks, batchTime), executorService))
+            .toList();
 
-    private void processFailedLinks(Collection<Link> failedLinks) {
-        for (Link link : failedLinks) {
-            List<ChatId> chatIds = chatsService.getChatIdsByLink(link);
-            for (ChatId chatId : chatIds) {
-                sender.sendMessage(new LinkUpdateMessage(
-                        chatId.value(),
-                        link.getLinkId().value(),
-                        "Failed process link",
-                        null,
-                        null,
-                        link.getUrl(),
-                        OffsetDateTime.now()));
-            }
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))
+            .exceptionally(ex -> {
+                log.error("Batch processing failed", ex);
+                return null;
+            })
+            .join();
+
+        if (!failedLinks.isEmpty()) {
+            processFailedLinks(failedLinks, batchTime);
         }
     }
 
-    private void processChunk(List<Link> links, Collection<Link> failedLinks) {
+    private void processChunk(
+        List<Link> links,
+        Map<Link, List<ChatId>> failedLinks,
+        OffsetDateTime batchTime) {
+
         for (Link link : links) {
             List<ChatId> chatIds = chatsService.getChatIdsByLink(link);
             try {
                 List<LinkUpdateMessage> messages = executorHandler.execute(link, chatIds);
+                List<OutboxEvent> events = messages.stream()
+                    .map(msg -> outboxEventMapper.toOutboxEvent(msg, batchTime))
+                    .toList();
 
-                for (LinkUpdateMessage msg : messages) {
-                    sender.sendMessage(msg);
-                }
-
+                outboxEventService.save(events);
                 linkUpdateService.saveLastUpdates(link, messages);
             } catch (Exception e) {
                 log.warn("Failed to process link={}", link.getUrl(), e);
-                failedLinks.add(link);
+                failedLinks.put(link, chatIds);
             }
         }
     }
 
-    private void waitAll(List<Future<?>> futures) {
-        for (Future<?> f : futures) {
-            try {
-                f.get();
-            } catch (InterruptedException | ExecutionException e) {
-                log.error("Thread execution failed", e);
-            }
-        }
-    }
+    private void processFailedLinks(
+        Map<Link, List<ChatId>> failedLinks,
+        OffsetDateTime batchTime) {
 
-    private List<List<Link>> partition(List<Link> list, long parts) {
-        int size = list.size();
-        int chunkSize = (int) Math.ceil((double) size / parts);
-        List<List<Link>> result = new ArrayList<>();
-        for (int i = 0; i < size; i += chunkSize) {
-            result.add(list.subList(i, Math.min(i + chunkSize, size)));
-        }
+        List<OutboxEvent> events = failedLinks.entrySet().stream()
+            .flatMap(entry -> {
+                Link link = entry.getKey();
+                return entry.getValue().stream()
+                    .map(chatId -> {
+                        LinkUpdateMessage msg = new LinkUpdateMessage(
+                            chatId.value(),
+                            link.getLinkId().value(),
+                            "Failed process link",
+                            null, null,
+                            link.getUrl(),
+                            batchTime);
+                        return outboxEventMapper.toOutboxEvent(msg, batchTime);
+                    });
+            })
+            .toList();
 
-        return result;
+        outboxEventService.save(events);
     }
 }

@@ -1,6 +1,7 @@
 package backend.academy.linktracker.scrapper.mapper;
 
 import backend.academy.linktracker.scrapper.model.value.ChatId;
+import backend.academy.linktracker.scrapper.model.value.EventId;
 import backend.academy.linktracker.scrapper.model.value.LinkId;
 import backend.academy.linktracker.scrapper.model.value.TagId;
 import org.mapstruct.Mapper;
@@ -47,5 +48,19 @@ public interface IdsMapper {
             return null;
         }
         return new TagId(in);
+    }
+
+    default EventId mapToEventId(Long in) {
+        if (in == null) {
+            return null;
+        }
+        return new EventId(in);
+    }
+
+    default Long map(EventId id) {
+        if (id == null) {
+            return null;
+        }
+        return id.id();
     }
 }

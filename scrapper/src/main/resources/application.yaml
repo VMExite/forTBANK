@@ -50,6 +50,11 @@ app:
     threads: 4
     termination-await-millis: 90000
 
+  outbox:
+    batch-size: 50
+    max-retry: 5
+    termination-await-millis: 90000
+    threads: 4
   kafka:
     topic-link-update: linkUpdateEvent
     partitions: 3
@@ -70,4 +75,4 @@ app:
     grpc:
       host: "localhost"
       port: 9091
-debug: true
+debug: false

@@ -16,18 +16,25 @@ import java.time.OffsetDateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.support.RestClientAdapter;
 import org.springframework.web.service.invoker.HttpServiceProxyFactory;
 
 @WireMockTest(httpPort = 0)
-class HttpMessageSenderTest {
+class BotRestTest {
 
     private HttpMessageSender sender;
 
     private static final LinkUpdateMessage REQUEST =
             new LinkUpdateMessage(1L, 1L, "test", "user", "test preview", "http:example.com", OffsetDateTime.now());
+
+    @DynamicPropertySource
+    static void dynamicProperties(DynamicPropertyRegistry registry) {
+        registry.add("app.message-sending-type", () -> "REST");
+    }
 
     @BeforeEach
     void setUp(WireMockRuntimeInfo wm) {
