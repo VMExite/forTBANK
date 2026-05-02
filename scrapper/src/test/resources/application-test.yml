@@ -15,6 +15,13 @@ spring:
       user: test
       password: test
 
+    kafka:
+      producer:
+        key-serializer: org.apache.kafka.common.serialization.LongSerializer
+        value-serializer: io.confluent.kafka.serializers.KafkaAvroSerializer
+      admin:
+        properties:
+          default.replication.factor: 1
     task:
     scheduling:
       enabled: false
@@ -23,7 +30,11 @@ spring:
     hibernate:
       ddl-auto: none
 
+
 app:
+  kafka:
+    replicas: 1
+    partitions: 1
   bot:
     base-url: http://localhost:9999
     grpc:
