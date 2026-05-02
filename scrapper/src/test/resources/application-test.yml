@@ -22,7 +22,6 @@ spring:
       admin:
         properties:
           default.replication.factor: 1
-    task:
     scheduling:
       enabled: false
 
