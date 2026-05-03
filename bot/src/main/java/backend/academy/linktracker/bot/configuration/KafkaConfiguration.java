@@ -1,11 +1,7 @@
 package backend.academy.linktracker.bot.configuration;
 
 import backend.academy.linktracker.bot.dto.LinkUpdateMessage;
-import backend.academy.linktracker.bot.exception.NotRetryableException;
-import backend.academy.linktracker.bot.exception.RetryableException;
 import backend.academy.linktracker.bot.properties.KafkaProperties;
-import backend.academy.linktracker.dto.kafka.LinkUpdateAvroMessage;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.SerializationException;
 import org.apache.kafka.clients.admin.NewTopic;
@@ -28,23 +24,14 @@ public class KafkaConfiguration {
     private final KafkaProperties properties;
 
     @Bean
-    public KafkaTemplate<Long, LinkUpdateMessage> kafkaTemplate(
-        ProducerFactory<Long, LinkUpdateMessage> factory
-    ) {
+    public KafkaTemplate<Long, LinkUpdateMessage> kafkaTemplate(ProducerFactory<Long, LinkUpdateMessage> factory) {
         return new KafkaTemplate<>(factory);
     }
 
     @Bean
-    public DeadLetterPublishingRecoverer recoverer(
-        KafkaTemplate<Long, LinkUpdateMessage> template
-    ) {
+    public DeadLetterPublishingRecoverer recoverer(KafkaTemplate<Long, LinkUpdateMessage> template) {
         return new DeadLetterPublishingRecoverer(
-            template,
-            (record, ex) -> new TopicPartition(
-                record.topic() + "-dlt",
-                record.partition()
-            )
-        );
+                template, (record, ex) -> new TopicPartition(record.topic() + "-dlt", record.partition()));
     }
 
     @Bean
@@ -55,23 +42,17 @@ public class KafkaConfiguration {
         FixedBackOff backOff = new FixedBackOff(retryInterval, maxRetries);
         DefaultErrorHandler handler = new DefaultErrorHandler(recoverer, backOff);
 
-        handler.addNotRetryableExceptions(
-            DeserializationException.class,
-            SerializationException.class
-        );
+        handler.addNotRetryableExceptions(DeserializationException.class, SerializationException.class);
 
         return handler;
     }
 
     @Bean(name = "kafkaListenerContainerFactory")
-    public ConcurrentKafkaListenerContainerFactory<Long, LinkUpdateMessage>
-    kafkaListenerContainerFactory(
-        ConsumerFactory<Long, LinkUpdateMessage> consumerFactory,
-        DefaultErrorHandler errorHandler
-    ) {
+    public ConcurrentKafkaListenerContainerFactory<Long, LinkUpdateMessage> kafkaListenerContainerFactory(
+            ConsumerFactory<Long, LinkUpdateMessage> consumerFactory, DefaultErrorHandler errorHandler) {
 
         ConcurrentKafkaListenerContainerFactory<Long, LinkUpdateMessage> factory =
-            new ConcurrentKafkaListenerContainerFactory<>();
+                new ConcurrentKafkaListenerContainerFactory<>();
 
         factory.setConsumerFactory(consumerFactory);
         factory.setCommonErrorHandler(errorHandler);
@@ -81,16 +62,14 @@ public class KafkaConfiguration {
 
     @Bean
     public NewTopic linkUpdateEventTopic() {
-        return TopicBuilder.name("linkUpdateEvent")
-            .partitions(1)
-            .replicas(1)
-            .build();
+        return TopicBuilder.name("linkUpdateEvent").partitions(1).replicas(1).build();
     }
+
     @Bean
     public NewTopic linkUpdateEventDltTopic() {
         return TopicBuilder.name("linkUpdateEvent-dlt")
-            .partitions(1)
-            .replicas(1)
-            .build();
+                .partitions(1)
+                .replicas(1)
+                .build();
     }
 }

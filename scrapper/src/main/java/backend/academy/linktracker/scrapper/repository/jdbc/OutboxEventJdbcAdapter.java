@@ -6,15 +6,14 @@ import backend.academy.linktracker.scrapper.model.OutboxEvent;
 import backend.academy.linktracker.scrapper.model.value.EventId;
 import backend.academy.linktracker.scrapper.properties.OutboxProperties;
 import backend.academy.linktracker.scrapper.repository.OutboxEventRepository;
+import java.time.OffsetDateTime;
+import java.util.Collection;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.postgresql.util.PGobject;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-import java.time.OffsetDateTime;
-import java.util.Collection;
-import java.util.List;
 
 @ConditionalOnProperty(name = "app.access-type", havingValue = "SQL")
 @Repository
@@ -67,29 +66,29 @@ public class OutboxEventJdbcAdapter implements OutboxEventRepository {
     @Override
     @Transactional
     public void save(OutboxEvent event) {
-        jdbcTemplate.update(SQL_INSERT_EVENT,
-            event.getPayload(),
-            event.getStatus().name(),
-            event.getCreatedAt(),
-            event.getRetryCount(),
-            event.getRetryTime(),
-            event.getType().name()
-        );
+        jdbcTemplate.update(
+                SQL_INSERT_EVENT,
+                event.getPayload(),
+                event.getStatus().name(),
+                event.getCreatedAt(),
+                event.getRetryCount(),
+                event.getRetryTime(),
+                event.getType().name());
     }
 
     @Override
     @Transactional
     public void save(Collection<OutboxEvent> events) {
         List<Object[]> args = events.stream()
-            .map(e -> new Object[]{
-                e.getPayload(),
-                e.getStatus().name(),
-                e.getCreatedAt(),
-                e.getRetryCount(),
-                e.getRetryTime(),
-                e.getType().name()
-            })
-            .toList();
+                .map(e -> new Object[] {
+                    e.getPayload(),
+                    e.getStatus().name(),
+                    e.getCreatedAt(),
+                    e.getRetryCount(),
+                    e.getRetryTime(),
+                    e.getType().name()
+                })
+                .toList();
 
         jdbcTemplate.batchUpdate(SQL_INSERT_BATCH, args);
     }
@@ -98,49 +97,28 @@ public class OutboxEventJdbcAdapter implements OutboxEventRepository {
     @Transactional
     public List<OutboxEvent> claimBatch(int batchSize) {
         return jdbcTemplate.query(
-            SQL_CLAIM_BATCH,
-            rowMapper,
-            EventStatus.NEW.name(),
-            properties.getMaxRetry(),
-            batchSize
-        );
+                SQL_CLAIM_BATCH, rowMapper, EventStatus.NEW.name(), properties.getMaxRetry(), batchSize);
     }
 
     @Override
     @Transactional
     public void markSuccess(Collection<EventId> eventIds) {
-        Long[] ids = eventIds.stream()
-            .map(EventId::id)
-            .toArray(Long[]::new);
+        Long[] ids = eventIds.stream().map(EventId::id).toArray(Long[]::new);
 
-        jdbcTemplate.update(SQL_MARK_SUCCESS,
-            EventStatus.SUCCESS.name(),
-            ids
-        );
+        jdbcTemplate.update(SQL_MARK_SUCCESS, EventStatus.SUCCESS.name(), ids);
     }
 
     @Override
     @Transactional
     public void markRetry(EventId eventId, int currentRetryCount, int maxRetry) {
         if (currentRetryCount >= maxRetry) {
-            jdbcTemplate.update(
-                SQL_UPDATE_EVENT,
-                EventStatus.FAILURE.name(),
-                currentRetryCount,
-                eventId.id()
-            );
+            jdbcTemplate.update(SQL_UPDATE_EVENT, EventStatus.FAILURE.name(), currentRetryCount, eventId.id());
             return;
         }
 
-        OffsetDateTime nextRetry = OffsetDateTime.now()
-            .plusSeconds(retryBackoff(currentRetryCount));
+        OffsetDateTime nextRetry = OffsetDateTime.now().plusSeconds(retryBackoff(currentRetryCount));
 
-        jdbcTemplate.update(SQL_MARK_RETRY,
-            currentRetryCount + 1,
-            nextRetry,
-            EventStatus.NEW.name(),
-            eventId.id()
-        );
+        jdbcTemplate.update(SQL_MARK_RETRY, currentRetryCount + 1, nextRetry, EventStatus.NEW.name(), eventId.id());
     }
 
     // calculate backoff exponential

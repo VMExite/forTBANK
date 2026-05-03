@@ -1,11 +1,11 @@
 package backend.academy.linktracker.scrapper.mapper;
 
-import backend.academy.linktracker.scrapper.dto.LinkUpdateMessage;
 import backend.academy.linktracker.dto.kafka.LinkUpdateAvroMessage;
-import org.mapstruct.Mapper;
+import backend.academy.linktracker.scrapper.dto.LinkUpdateMessage;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
 public interface AvroMapper {

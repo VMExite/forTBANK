@@ -7,8 +7,12 @@ import java.util.List;
 
 public interface OutboxEventService {
     void save(OutboxEvent event);
+
     void save(Collection<OutboxEvent> events);
+
     List<OutboxEvent> getBatch(int batchSize);
+
     void markSuccess(Collection<EventId> eventIds);
+
     void markRetry(EventId eventId, int currentRetryCount, int maxRetry);
 }

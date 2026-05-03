@@ -277,20 +277,20 @@
                 <artifactId>avro-maven-plugin</artifactId>
                 <version>1.11.3</version>
 
-                <executions>
-                    <execution>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>schema</goal>
-                        </goals>
-                    </execution>
-                </executions>
-
                 <configuration>
                     <sourceDirectory>${project.basedir}/src/main/resources/avro</sourceDirectory>
                     <outputDirectory>${project.basedir}/target/generated-sources/avro</outputDirectory>
                     <stringType>String</stringType>
                 </configuration>
+
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>schema</goal>
+                        </goals>
+                        <phase>generate-sources</phase>
+                    </execution>
+                </executions>
             </plugin>
 
             <plugin>

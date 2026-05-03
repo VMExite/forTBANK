@@ -9,15 +9,15 @@ import backend.academy.linktracker.scrapper.properties.OutboxProperties;
 import backend.academy.linktracker.scrapper.repository.OutboxEventRepository;
 import backend.academy.linktracker.scrapper.repository.jpa.OutboxEventJpaRepository;
 import jakarta.persistence.EntityNotFoundException;
+import java.time.OffsetDateTime;
+import java.util.Collection;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-import java.time.OffsetDateTime;
-import java.util.Collection;
-import java.util.List;
 
 @ConditionalOnProperty(name = "app.access-type", havingValue = "ORM")
 @Repository
@@ -37,8 +37,7 @@ public class OutboxEventJpaAdapter implements OutboxEventRepository {
             return;
         }
 
-        OutboxEventEntity entity = repository.findById(model.getEventId().id())
-            .orElseGet(() -> mapper.toEntity(model));
+        OutboxEventEntity entity = repository.findById(model.getEventId().id()).orElseGet(() -> mapper.toEntity(model));
 
         entity.setStatus(model.getStatus());
         entity.setRetryCount(model.getRetryCount());
@@ -49,9 +48,7 @@ public class OutboxEventJpaAdapter implements OutboxEventRepository {
     @Override
     @Transactional
     public void save(Collection<OutboxEvent> models) {
-        List<OutboxEventEntity> entities = models.stream()
-            .map(mapper::toEntity)
-            .toList();
+        List<OutboxEventEntity> entities = models.stream().map(mapper::toEntity).toList();
 
         repository.saveAll(entities);
     }
@@ -61,15 +58,10 @@ public class OutboxEventJpaAdapter implements OutboxEventRepository {
     public List<OutboxEvent> claimBatch(int batchSize) {
         Pageable pageable = PageRequest.of(0, batchSize);
         return repository
-            .findByStatusAndRetryTime(
-                EventStatus.NEW,
-                OffsetDateTime.now(),
-                properties.getMaxRetry(),
-                pageable
-            )
-            .stream()
-            .map(mapper::fromEntity)
-            .toList();
+                .findByStatusAndRetryTime(EventStatus.NEW, OffsetDateTime.now(), properties.getMaxRetry(), pageable)
+                .stream()
+                .map(mapper::fromEntity)
+                .toList();
     }
 
     @Override
@@ -82,8 +74,9 @@ public class OutboxEventJpaAdapter implements OutboxEventRepository {
     @Override
     @Transactional
     public void markRetry(EventId eventId, int currentRetryCount, int maxRetry) {
-        OutboxEventEntity entity = repository.findById(eventId.id())
-            .orElseThrow(() -> new EntityNotFoundException("OutboxEvent not found: " + eventId));
+        OutboxEventEntity entity = repository
+                .findById(eventId.id())
+                .orElseThrow(() -> new EntityNotFoundException("OutboxEvent not found: " + eventId));
 
         if (currentRetryCount >= maxRetry) {
             entity.setStatus(EventStatus.FAILURE);

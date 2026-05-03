@@ -1,10 +1,10 @@
 package backend.academy.linktracker.scrapper.model;
 
 import backend.academy.linktracker.scrapper.model.value.EventId;
+import java.time.OffsetDateTime;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-import java.time.OffsetDateTime;
 
 @Builder
 public class OutboxEvent {

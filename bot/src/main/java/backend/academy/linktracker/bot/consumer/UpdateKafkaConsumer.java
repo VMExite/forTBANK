@@ -8,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.kafka.support.KafkaNull;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -21,11 +20,12 @@ public class UpdateKafkaConsumer {
 
     @KafkaListener(topics = "linkUpdateEvent", groupId = "linkUpdateGroup")
     public void consume(ConsumerRecord<Long, LinkUpdateAvroMessage> consumerRecord) {
-        log.info("RECEIVED topic={}, key={}, value={} class={}",
-            consumerRecord.topic(),
-            consumerRecord.key(),
-            consumerRecord.value(),
-            consumerRecord.value().getClass().getName());
+        log.info(
+                "RECEIVED topic={}, key={}, value={} class={}",
+                consumerRecord.topic(),
+                consumerRecord.key(),
+                consumerRecord.value(),
+                consumerRecord.value().getClass().getName());
         if (consumerRecord.value() == null) {
             log.error("Deserialization failed");
 

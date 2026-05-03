@@ -2,8 +2,6 @@ package backend.academy.linktracker.scrapper.sheduler;
 
 import backend.academy.linktracker.scrapper.dto.LinkUpdateMessage;
 import backend.academy.linktracker.scrapper.mapper.OutboxEventMapper;
-import backend.academy.linktracker.scrapper.model.EventStatus;
-import backend.academy.linktracker.scrapper.model.EventType;
 import backend.academy.linktracker.scrapper.model.Link;
 import backend.academy.linktracker.scrapper.model.OutboxEvent;
 import backend.academy.linktracker.scrapper.model.value.ChatId;
@@ -12,27 +10,17 @@ import backend.academy.linktracker.scrapper.service.crud.ChatsService;
 import backend.academy.linktracker.scrapper.service.crud.LinkUpdateService;
 import backend.academy.linktracker.scrapper.service.crud.OutboxEventService;
 import backend.academy.linktracker.scrapper.service.executor.LinkExecutorHandler;
-import backend.academy.linktracker.scrapper.service.sender.MessageSender;
+import com.google.common.collect.Lists;
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
-import com.google.common.collect.Lists;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import tools.jackson.databind.ObjectMapper;
-
-import static org.apache.commons.lang3.SerializationUtils.serialize;
 
 @Slf4j
 @Service
@@ -46,14 +34,13 @@ public class LinkUpdateScheduler {
     private final OutboxEventMapper outboxEventMapper;
 
     public LinkUpdateScheduler(
-        SchedulerProperties schedulerProperties,
-        LinkUpdateService linkUpdateService,
-        ChatsService chatsService,
-        LinkExecutorHandler executorHandler,
-        OutboxEventService outboxEventService,
-        @Qualifier("schedulerExecutor") ExecutorService executorService,
-        OutboxEventMapper outboxEventMapper
-    ) {
+            SchedulerProperties schedulerProperties,
+            LinkUpdateService linkUpdateService,
+            ChatsService chatsService,
+            LinkExecutorHandler executorHandler,
+            OutboxEventService outboxEventService,
+            @Qualifier("schedulerExecutor") ExecutorService executorService,
+            OutboxEventMapper outboxEventMapper) {
         this.schedulerProperties = schedulerProperties;
         this.linkUpdateService = linkUpdateService;
         this.chatsService = chatsService;
@@ -62,7 +49,6 @@ public class LinkUpdateScheduler {
         this.executorService = executorService;
         this.outboxEventMapper = outboxEventMapper;
     }
-
 
     @Scheduled(fixedDelayString = "${app.scheduler.delay}")
     public void update() {
@@ -76,40 +62,36 @@ public class LinkUpdateScheduler {
 
     private void processBatch(List<Link> batch, OffsetDateTime batchTime) {
         int threads = schedulerProperties.getThreads();
-        List<List<Link>> partitions = Lists.partition(batch,
-            (int) Math.ceil((double) batch.size() / threads));
+        List<List<Link>> partitions = Lists.partition(batch, (int) Math.ceil((double) batch.size() / threads));
 
         Map<Link, List<ChatId>> failedLinks = new ConcurrentHashMap<>();
 
         List<CompletableFuture<Void>> futures = partitions.stream()
-            .map(part -> CompletableFuture.runAsync(
-                () -> processChunk(part, failedLinks, batchTime), executorService))
-            .toList();
+                .map(part ->
+                        CompletableFuture.runAsync(() -> processChunk(part, failedLinks, batchTime), executorService))
+                .toList();
 
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))
-            .exceptionally(ex -> {
-                log.error("Batch processing failed", ex);
-                return null;
-            })
-            .join();
+                .exceptionally(ex -> {
+                    log.error("Batch processing failed", ex);
+                    return null;
+                })
+                .join();
 
         if (!failedLinks.isEmpty()) {
             processFailedLinks(failedLinks, batchTime);
         }
     }
 
-    private void processChunk(
-        List<Link> links,
-        Map<Link, List<ChatId>> failedLinks,
-        OffsetDateTime batchTime) {
+    private void processChunk(List<Link> links, Map<Link, List<ChatId>> failedLinks, OffsetDateTime batchTime) {
 
         for (Link link : links) {
             List<ChatId> chatIds = chatsService.getChatIdsByLink(link);
             try {
                 List<LinkUpdateMessage> messages = executorHandler.execute(link, chatIds);
                 List<OutboxEvent> events = messages.stream()
-                    .map(msg -> outboxEventMapper.toOutboxEvent(msg, batchTime))
-                    .toList();
+                        .map(msg -> outboxEventMapper.toOutboxEvent(msg, batchTime))
+                        .toList();
 
                 outboxEventService.save(events);
                 linkUpdateService.saveLastUpdates(link, messages);
@@ -120,26 +102,24 @@ public class LinkUpdateScheduler {
         }
     }
 
-    private void processFailedLinks(
-        Map<Link, List<ChatId>> failedLinks,
-        OffsetDateTime batchTime) {
+    private void processFailedLinks(Map<Link, List<ChatId>> failedLinks, OffsetDateTime batchTime) {
 
         List<OutboxEvent> events = failedLinks.entrySet().stream()
-            .flatMap(entry -> {
-                Link link = entry.getKey();
-                return entry.getValue().stream()
-                    .map(chatId -> {
+                .flatMap(entry -> {
+                    Link link = entry.getKey();
+                    return entry.getValue().stream().map(chatId -> {
                         LinkUpdateMessage msg = new LinkUpdateMessage(
-                            chatId.value(),
-                            link.getLinkId().value(),
-                            "Failed process link",
-                            null, null,
-                            link.getUrl(),
-                            batchTime);
+                                chatId.value(),
+                                link.getLinkId().value(),
+                                "Failed process link",
+                                null,
+                                null,
+                                link.getUrl(),
+                                batchTime);
                         return outboxEventMapper.toOutboxEvent(msg, batchTime);
                     });
-            })
-            .toList();
+                })
+                .toList();
 
         outboxEventService.save(events);
     }

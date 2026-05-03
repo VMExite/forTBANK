@@ -73,4 +73,8 @@
     <Match>
         <Class name="~backend\.academy\.linktracker\..*\.ScrapperProto(\$.*)?"/>
     </Match>
+
+    <Match>
+        <Package name="backend.academy.linktracker.dto.kafka"/>
+    </Match>
 </FindBugsFilter>

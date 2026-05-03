@@ -4,11 +4,11 @@ import backend.academy.linktracker.scrapper.model.OutboxEvent;
 import backend.academy.linktracker.scrapper.properties.OutboxProperties;
 import backend.academy.linktracker.scrapper.service.crud.OutboxEventService;
 import backend.academy.linktracker.scrapper.sheduler.processing.impl.OutboxEventProcessor;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import java.util.List;
 
 @Slf4j
 @Component

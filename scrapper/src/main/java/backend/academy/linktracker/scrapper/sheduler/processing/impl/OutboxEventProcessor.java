@@ -8,15 +8,15 @@ import backend.academy.linktracker.scrapper.properties.OutboxProperties;
 import backend.academy.linktracker.scrapper.service.crud.OutboxEventService;
 import backend.academy.linktracker.scrapper.service.sender.MessageSender;
 import backend.academy.linktracker.scrapper.sheduler.processing.SingleThreadProcessor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
@@ -28,12 +28,11 @@ public class OutboxEventProcessor implements SingleThreadProcessor<OutboxEvent> 
     private final OutboxEventMapper outboxEventMapper;
 
     public OutboxEventProcessor(
-        @Qualifier("outboxExecutor") ExecutorService executor,
-        MessageSender messageSender,
-        OutboxProperties properties,
-        OutboxEventService outboxEventService,
-        OutboxEventMapper outboxEventMapper
-    ) {
+            @Qualifier("outboxExecutor") ExecutorService executor,
+            MessageSender messageSender,
+            OutboxProperties properties,
+            OutboxEventService outboxEventService,
+            OutboxEventMapper outboxEventMapper) {
         this.executor = executor;
         this.messageSender = messageSender;
         this.properties = properties;
@@ -46,9 +45,8 @@ public class OutboxEventProcessor implements SingleThreadProcessor<OutboxEvent> 
         List<EventId> successIds = Collections.synchronizedList(new ArrayList<>());
 
         List<CompletableFuture<Void>> futures = events.stream()
-            .map(e -> CompletableFuture.runAsync(
-                () -> processEvent(e,successIds), executor
-            )).toList();
+                .map(e -> CompletableFuture.runAsync(() -> processEvent(e, successIds), executor))
+                .toList();
 
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
         outboxEventService.markSuccess(successIds);
@@ -57,7 +55,7 @@ public class OutboxEventProcessor implements SingleThreadProcessor<OutboxEvent> 
     private void processEvent(OutboxEvent event, Collection<EventId> successIds) {
         int maxRetry = properties.getMaxRetry();
         try {
-            LinkUpdateMessage message =  outboxEventMapper.toMessage(event);
+            LinkUpdateMessage message = outboxEventMapper.toMessage(event);
             messageSender.sendMessage(message);
             successIds.add(event.getEventId());
             log.info("Message {} sent to {}", message, event.getType());

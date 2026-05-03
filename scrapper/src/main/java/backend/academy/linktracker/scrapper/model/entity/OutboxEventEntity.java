@@ -10,6 +10,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import java.time.OffsetDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -18,7 +19,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnTransformer;
 import org.hibernate.annotations.CreationTimestamp;
-import java.time.OffsetDateTime;
 
 @Entity
 @Table(name = "outbox_event")
@@ -46,7 +46,7 @@ public class OutboxEventEntity {
     @CreationTimestamp
     private OffsetDateTime createdAt;
 
-    @Column(name = "retry_time",nullable = false)
+    @Column(name = "retry_time", nullable = false)
     private OffsetDateTime retryTime;
 
     @Column(name = "retry_count", nullable = false)
@@ -55,5 +55,4 @@ public class OutboxEventEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false)
     private EventType type;
-
 }

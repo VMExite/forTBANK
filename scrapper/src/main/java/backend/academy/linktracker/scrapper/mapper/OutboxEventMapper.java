@@ -7,32 +7,33 @@ import backend.academy.linktracker.scrapper.model.entity.OutboxEventEntity;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import java.time.OffsetDateTime;
 import org.mapstruct.Context;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
-import java.time.OffsetDateTime;
 
 @Mapper(componentModel = "spring", uses = IdsMapper.class)
 public interface OutboxEventMapper {
     OutboxEvent fromEntity(OutboxEventEntity entity);
+
     OutboxEventEntity toEntity(OutboxEvent entity);
 
-    @Mapping(target = "chatId",    source = "payload", qualifiedByName = "extractChatId")
-    @Mapping(target = "linkId",    source = "payload", qualifiedByName = "extractLinkId")
-    @Mapping(target = "title",     source = "payload", qualifiedByName = "extractTitle")
-    @Mapping(target = "username",  source = "payload", qualifiedByName = "extractUsername")
-    @Mapping(target = "preview",   source = "payload", qualifiedByName = "extractPreview")
-    @Mapping(target = "url",       source = "payload", qualifiedByName = "extractUrl")
+    @Mapping(target = "chatId", source = "payload", qualifiedByName = "extractChatId")
+    @Mapping(target = "linkId", source = "payload", qualifiedByName = "extractLinkId")
+    @Mapping(target = "title", source = "payload", qualifiedByName = "extractTitle")
+    @Mapping(target = "username", source = "payload", qualifiedByName = "extractUsername")
+    @Mapping(target = "preview", source = "payload", qualifiedByName = "extractPreview")
+    @Mapping(target = "url", source = "payload", qualifiedByName = "extractUrl")
     @Mapping(target = "createdAt", source = "createdAt")
     LinkUpdateMessage toMessage(OutboxEvent event);
 
-    @Mapping(target = "createdAt",   expression = "java(batchTime)")
-    @Mapping(target = "retryTime",   expression = "java(batchTime)")
-    @Mapping(target = "retryCount",  constant = "0")
-    @Mapping(target = "status",      constant = "NEW")
-    @Mapping(target = "type",        constant = "LINK_UPDATE_EVENT_TYPE")
-    @Mapping(target = "payload",     expression = "java(serialize(message))")
+    @Mapping(target = "createdAt", expression = "java(batchTime)")
+    @Mapping(target = "retryTime", expression = "java(batchTime)")
+    @Mapping(target = "retryCount", constant = "0")
+    @Mapping(target = "status", constant = "NEW")
+    @Mapping(target = "type", constant = "LINK_UPDATE_EVENT_TYPE")
+    @Mapping(target = "payload", expression = "java(serialize(message))")
     OutboxEvent toOutboxEvent(LinkUpdateMessage message, @Context OffsetDateTime batchTime);
 
     @Named("extractChatId")
@@ -67,9 +68,7 @@ public interface OutboxEventMapper {
 
     default LinkUpdateMessage parsePayload(String payload) {
         try {
-            return new ObjectMapper()
-                .registerModule(new JavaTimeModule())
-                .readValue(payload, LinkUpdateMessage.class);
+            return new ObjectMapper().registerModule(new JavaTimeModule()).readValue(payload, LinkUpdateMessage.class);
         } catch (JsonProcessingException e) {
             throw new OutboxMappingException("Failed to deserialize payload: " + payload, e);
         }

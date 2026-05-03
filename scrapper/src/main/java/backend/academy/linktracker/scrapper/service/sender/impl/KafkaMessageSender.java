@@ -27,7 +27,6 @@ public class KafkaMessageSender implements MessageSender {
         LinkUpdateAvroMessage avroMessage = avroMapper.toAvro(message);
 
         log.info("KAFKA PRODUCER send avro message: {}", avroMessage);
-        kafkaTemplate
-            .send(kafkaProperties.getTopicLinkUpdate(), avroMessage.getChatId(), avroMessage);
+        kafkaTemplate.send(kafkaProperties.getTopicLinkUpdate(), avroMessage.getChatId(), avroMessage);
     }
 }

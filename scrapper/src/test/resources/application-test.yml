@@ -22,12 +22,11 @@ spring:
       admin:
         properties:
           default.replication.factor: 1
-    scheduling:
-      enabled: false
+
 
     jpa:
-    hibernate:
-      ddl-auto: none
+      hibernate:
+        ddl-auto: validate
 
 
 app:

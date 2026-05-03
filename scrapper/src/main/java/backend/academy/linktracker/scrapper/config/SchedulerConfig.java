@@ -3,18 +3,13 @@ package backend.academy.linktracker.scrapper.config;
 import backend.academy.linktracker.scrapper.properties.OutboxProperties;
 import backend.academy.linktracker.scrapper.properties.SchedulerProperties;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import jakarta.annotation.PreDestroy;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -28,34 +23,28 @@ public class SchedulerConfig {
     @Bean(value = "schedulerExecutor")
     public ExecutorService schedulerExecutor() {
         return new ThreadPoolExecutor(
-            schedulerProperties.getThreads(),
-            schedulerProperties.getThreads(),
-            0L, TimeUnit.MILLISECONDS,
-            new LinkedBlockingQueue<>(),
-            new ThreadFactoryBuilder()
-                .setNameFormat("link-scheduler-%d")
-                .build()
-        );
+                schedulerProperties.getThreads(),
+                schedulerProperties.getThreads(),
+                0L,
+                TimeUnit.MILLISECONDS,
+                new LinkedBlockingQueue<>(),
+                new ThreadFactoryBuilder().setNameFormat("link-scheduler-%d").build());
     }
 
     @Bean("outboxExecutor")
     public ExecutorService outboxExecutor() {
         return new ThreadPoolExecutor(
-            outboxProperties.getThreads(),
-            outboxProperties.getThreads(),
-            0L, TimeUnit.MILLISECONDS,
-            new LinkedBlockingQueue<>(),
-            new ThreadFactoryBuilder()
-                .setNameFormat("outbox-worker-%d")
-                .build()
-        );
+                outboxProperties.getThreads(),
+                outboxProperties.getThreads(),
+                0L,
+                TimeUnit.MILLISECONDS,
+                new LinkedBlockingQueue<>(),
+                new ThreadFactoryBuilder().setNameFormat("outbox-worker-%d").build());
     }
 
     public void gracefulShutdown() {
-        shutdownExecutor(schedulerExecutor(), "schedulerExecutor",
-            schedulerProperties.getTerminationAwaitMillis());
-        shutdownExecutor(outboxExecutor(), "outboxExecutor",
-            outboxProperties.getTerminationAwaitMillis());
+        shutdownExecutor(schedulerExecutor(), "schedulerExecutor", schedulerProperties.getTerminationAwaitMillis());
+        shutdownExecutor(outboxExecutor(), "outboxExecutor", outboxProperties.getTerminationAwaitMillis());
     }
 
     private void shutdownExecutor(ExecutorService executor, String name, long awaitMillis) {

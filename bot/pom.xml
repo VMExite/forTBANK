@@ -152,14 +152,14 @@
         <!--     <artifactId>opentelemetry-logback-appender-1.0</artifactId> -->
         <!-- </dependency> -->
 
-                <!-- Зависимость убрана так как из за нее почему то ломается сериализация Avro-схем
+        <!-- Зависимость убрана так как из за нее почему то ломается сериализация Avro-схем
                  я не смог разобраться в причине такого поведения, пришлось закоментировать зависимость
                  -->
-<!--        <dependency>-->
-<!--            <groupId>org.springframework.boot</groupId>-->
-<!--            <artifactId>spring-boot-devtools</artifactId>-->
-<!--            <scope>runtime</scope>-->
-<!--        </dependency>-->
+        <!--        <dependency>-->
+        <!--            <groupId>org.springframework.boot</groupId>-->
+        <!--            <artifactId>spring-boot-devtools</artifactId>-->
+        <!--            <scope>runtime</scope>-->
+        <!--        </dependency>-->
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
@@ -264,20 +264,20 @@
                 <artifactId>avro-maven-plugin</artifactId>
                 <version>1.11.3</version>
 
-                <executions>
-                    <execution>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>schema</goal>
-                        </goals>
-                    </execution>
-                </executions>
-
                 <configuration>
                     <sourceDirectory>${project.basedir}/src/main/resources/avro</sourceDirectory>
                     <outputDirectory>${project.basedir}/target/generated-sources/avro</outputDirectory>
                     <stringType>String</stringType>
                 </configuration>
+
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>schema</goal>
+                        </goals>
+                        <phase>generate-sources</phase>
+                    </execution>
+                </executions>
 
             </plugin>
             <!-- .proto gRPC compilation: -->

@@ -4,13 +4,13 @@ import backend.academy.linktracker.scrapper.model.OutboxEvent;
 import backend.academy.linktracker.scrapper.model.value.EventId;
 import backend.academy.linktracker.scrapper.repository.OutboxEventRepository;
 import backend.academy.linktracker.scrapper.service.crud.OutboxEventService;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
 
 @Slf4j
 @Service
@@ -31,7 +31,7 @@ public class OutboxEventServiceImpl implements OutboxEventService {
     @Override
     @Transactional
     public void save(Collection<OutboxEvent> events) {
-        if (events == null ||  events.isEmpty()) {
+        if (events == null || events.isEmpty()) {
             return;
         }
         outboxEventRepository.save(events);
