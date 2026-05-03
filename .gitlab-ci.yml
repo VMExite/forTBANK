@@ -33,6 +33,7 @@ lint:
     - ./mvnw compile -am spotless:check modernizer:modernizer spotbugs:check pmd:check pmd:cpd-check
 
 test:
+  timeout: 30m
   stage: test
   needs:
     - build
