@@ -59,17 +59,4 @@ public class KafkaConfiguration {
 
         return factory;
     }
-
-    @Bean
-    public NewTopic linkUpdateEventTopic() {
-        return TopicBuilder.name("linkUpdateEvent").partitions(1).replicas(1).build();
-    }
-
-    @Bean
-    public NewTopic linkUpdateEventDltTopic() {
-        return TopicBuilder.name("linkUpdateEvent-dlt")
-                .partitions(1)
-                .replicas(1)
-                .build();
-    }
 }
