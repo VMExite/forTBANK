@@ -5,11 +5,13 @@ import backend.academy.linktracker.scrapper.dto.LinkUpdateMessage;
 import backend.academy.linktracker.scrapper.mapper.AvroMapper;
 import backend.academy.linktracker.scrapper.properties.KafkaProperties;
 import backend.academy.linktracker.scrapper.service.sender.MessageSender;
+import java.util.concurrent.CompletableFuture;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -23,10 +25,10 @@ public class KafkaMessageSender implements MessageSender {
     private final AvroMapper avroMapper;
 
     @Override
-    public void sendMessage(LinkUpdateMessage message) {
+    public CompletableFuture<SendResult<Long, LinkUpdateAvroMessage>> sendMessage(LinkUpdateMessage message) {
         LinkUpdateAvroMessage avroMessage = avroMapper.toAvro(message);
 
         log.info("KAFKA PRODUCER send avro message: {}", avroMessage);
-        kafkaTemplate.send(kafkaProperties.getTopicLinkUpdate(), avroMessage.getChatId(), avroMessage);
+        return kafkaTemplate.send(kafkaProperties.getTopicLinkUpdate(), avroMessage.getChatId(), avroMessage);
     }
 }

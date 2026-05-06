@@ -40,6 +40,9 @@ spring:
       properties:
         schema.registry.url: http://localhost:8083
 
+        acks: all
+        enable.idempotence: true
+
   config:
       import: optional:file:.env[.properties]
 

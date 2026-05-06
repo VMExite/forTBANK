@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -23,30 +24,34 @@ public class UpdateKafkaConsumer {
     private final UpdateNotificationService updateNotificationService;
     private final AvroMapper avroMapper;
 
-    @KafkaListener(topics = "linkUpdateEvent", groupId = "linkUpdateGroup")
-    public void consume(ConsumerRecord<Long, LinkUpdateAvroMessage> consumerRecord) {
+    @KafkaListener(topics = "${app.kafka.link-update-topic}", groupId = "${spring.kafka.consumer.group-id}")
+    public void consume(ConsumerRecord<Long, LinkUpdateAvroMessage> consumerRecord, Acknowledgment ack) {
         log.info(
                 "RECEIVED topic={}, key={}, value={} class={}",
                 consumerRecord.topic(),
                 consumerRecord.key(),
                 consumerRecord.value(),
                 consumerRecord.value().getClass().getName());
+
+        LinkUpdateMessage message = avroMapper.fromAvro(consumerRecord.value());
         if (consumerRecord.value() == null) {
             log.error("Deserialization failed");
             return;
         }
 
-        LinkUpdateMessage message = avroMapper.fromAvro(consumerRecord.value());
-
         if (linkUpdateRepository.existsByEventId(message.eventId())) {
             log.warn("Link get more than once, but not processed");
+            ack.acknowledge();
             return;
         }
 
         log.debug("Consumer consume the message: {}", consumerRecord.value());
         try {
             updateNotificationService.notifyUsers(message);
+
             linkUpdateRepository.save(new LinkUpdate(message.eventId()));
+
+            ack.acknowledge();
         } catch (NotificationFailedException _) {
             throw new RetryableException("Notification to tg failed");
         }

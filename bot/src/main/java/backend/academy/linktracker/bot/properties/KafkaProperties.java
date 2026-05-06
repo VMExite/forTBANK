@@ -1,6 +1,7 @@
 package backend.academy.linktracker.bot.properties;
 
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,4 +21,7 @@ public class KafkaProperties {
 
     @Min(1)
     private Long retryMaxAttempts;
+
+    @NotBlank
+    private String linkUpdateTopicDlt;
 }

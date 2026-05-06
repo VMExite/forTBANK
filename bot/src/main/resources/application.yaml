@@ -42,12 +42,18 @@ spring:
         schema.registry.url: http://localhost:8083
         specific.avro.reader: true
 
+        enable-auto-commit: false
+
+
     producer:
       key-serializer: org.apache.kafka.common.serialization.LongSerializer
       value-serializer: io.confluent.kafka.serializers.KafkaAvroSerializer
 
       properties:
         schema.registry.url: http://localhost:8083
+
+        acks: all
+        enable.idempotence: true
 
 
 app:
@@ -57,6 +63,8 @@ app:
     update-listener-sleep: 1s
     debug: false
   kafka:
+    link-update-topic: linkUpdateEvent
+    link-update-topic-dlt: linkUpdateEvent-dlt
     retry-interval: 1000
     retry-max-attempts: 3
 

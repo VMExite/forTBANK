@@ -3,6 +3,7 @@ package backend.academy.linktracker.scrapper.service.sender.impl;
 import backend.academy.linktracker.scrapper.dto.LinkUpdateMessage;
 import backend.academy.linktracker.scrapper.service.sender.MessageSender;
 import backend.academy.linktracker.scrapper.webclient.bot.BotClient;
+import java.util.concurrent.CompletableFuture;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -17,12 +18,13 @@ public class HttpMessageSender implements MessageSender {
     private final BotClient client;
 
     @Override
-    public void sendMessage(LinkUpdateMessage request) {
+    public CompletableFuture sendMessage(LinkUpdateMessage request) {
         try {
             client.sendUpdate(request);
         } catch (RestClientException e) {
             log.error("Failed to send update. chatId={}, url={}", request.chatId(), request.url(), e);
             throw e;
         }
+        return null;
     }
 }

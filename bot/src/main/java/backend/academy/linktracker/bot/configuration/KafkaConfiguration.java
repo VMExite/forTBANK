@@ -4,15 +4,14 @@ import backend.academy.linktracker.bot.dto.LinkUpdateMessage;
 import backend.academy.linktracker.bot.properties.KafkaProperties;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.SerializationException;
-import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.common.TopicPartition;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
-import org.springframework.kafka.config.TopicBuilder;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
+import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.kafka.listener.DeadLetterPublishingRecoverer;
 import org.springframework.kafka.listener.DefaultErrorHandler;
 import org.springframework.kafka.support.serializer.DeserializationException;
@@ -31,7 +30,7 @@ public class KafkaConfiguration {
     @Bean
     public DeadLetterPublishingRecoverer recoverer(KafkaTemplate<Long, LinkUpdateMessage> template) {
         return new DeadLetterPublishingRecoverer(
-                template, (record, ex) -> new TopicPartition(record.topic() + "-dlt", record.partition()));
+                template, (record, ex) -> new TopicPartition(properties.getLinkUpdateTopicDlt(), record.partition()));
     }
 
     @Bean
@@ -56,6 +55,7 @@ public class KafkaConfiguration {
 
         factory.setConsumerFactory(consumerFactory);
         factory.setCommonErrorHandler(errorHandler);
+        factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);
 
         return factory;
     }

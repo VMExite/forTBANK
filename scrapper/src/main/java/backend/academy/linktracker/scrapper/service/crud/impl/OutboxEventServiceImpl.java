@@ -39,6 +39,7 @@ public class OutboxEventServiceImpl implements OutboxEventService {
     }
 
     @Override
+    @Transactional
     public List<OutboxEvent> getBatch(int batchSize) {
         if (batchSize <= 0) {
             return Collections.emptyList();
@@ -61,10 +62,6 @@ public class OutboxEventServiceImpl implements OutboxEventService {
     @Transactional
     public void markRetry(EventId eventId, int currentRetryCount, int maxRetry) {
         if (eventId == null) {
-            return;
-        }
-        if ((currentRetryCount + 1) > maxRetry) {
-            log.warn("OUTBOX SERVICE ERROR: maxRetry exceeded");
             return;
         }
         outboxEventRepository.markRetry(eventId, currentRetryCount, maxRetry);

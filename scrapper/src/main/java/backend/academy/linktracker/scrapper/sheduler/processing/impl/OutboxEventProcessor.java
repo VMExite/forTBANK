@@ -8,11 +8,12 @@ import backend.academy.linktracker.scrapper.properties.OutboxProperties;
 import backend.academy.linktracker.scrapper.service.crud.OutboxEventService;
 import backend.academy.linktracker.scrapper.service.sender.MessageSender;
 import backend.academy.linktracker.scrapper.sheduler.processing.SingleThreadProcessor;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
+import java.util.Queue;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -42,22 +43,37 @@ public class OutboxEventProcessor implements SingleThreadProcessor<OutboxEvent> 
 
     @Override
     public void process(Collection<OutboxEvent> events) {
-        List<EventId> successIds = Collections.synchronizedList(new ArrayList<>());
+        Queue<EventId> successIds = new ConcurrentLinkedQueue<>();
 
         List<CompletableFuture<Void>> futures = events.stream()
                 .map(e -> CompletableFuture.runAsync(() -> processEvent(e, successIds), executor))
                 .toList();
 
-        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
-        outboxEventService.markSuccess(successIds);
+        try {
+            CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+        } catch (CompletionException e) {
+            log.error("Unexpected error during batch processing", e);
+        }
+
+        if (!successIds.isEmpty()) {
+            outboxEventService.markSuccess(successIds);
+        }
     }
 
     private void processEvent(OutboxEvent event, Collection<EventId> successIds) {
         int maxRetry = properties.getMaxRetry();
         try {
             LinkUpdateMessage message = outboxEventMapper.toMessage(event);
-            messageSender.sendMessage(message);
-            successIds.add(event.getEventId());
+            // сделал по тупому, конечно, но умнее ничего не придумал:(
+            messageSender.sendMessage(message).whenComplete((_, throwable) -> {
+                if (throwable == null) {
+                    log.info("Event {} has been sent", event);
+                    successIds.add(event.getEventId());
+                } else {
+                    log.warn("Kafka producer has thrown an error during sending event: {}", throwable);
+                }
+            });
+
             log.info("Message {} sent to {}", message, event.getType());
         } catch (Exception _) {
             log.warn("Fail to send message {}, retry {}/{}", event.getEventId(), event.getRetryCount(), maxRetry);

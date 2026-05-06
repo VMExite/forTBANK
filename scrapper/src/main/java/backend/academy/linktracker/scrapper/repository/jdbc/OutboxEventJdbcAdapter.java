@@ -28,19 +28,19 @@ public class OutboxEventJdbcAdapter implements OutboxEventRepository {
         VALUES (?::jsonb, ?, ?, ?, ?, ?)
         """;
 
-    private static final String SQL_INSERT_BATCH = """
-        INSERT INTO outbox_event (payload, status, created_at, retry_count, retry_time, type)
-        VALUES (?::jsonb, ?, ?, ?, ?, ?)
-        """;
-
     private static final String SQL_CLAIM_BATCH = """
-        SELECT * FROM outbox_event
-        WHERE status = ?
-          AND retry_time <= now()
-          AND retry_count <= ?
-        ORDER BY retry_time
-        LIMIT ?
-        FOR UPDATE SKIP LOCKED
+        UPDATE outbox_event
+        SET status = 'IN_PROGRESS'
+        WHERE event_id IN (
+            SELECT event_id FROM outbox_event
+            WHERE status = 'NEW'
+              AND retry_time <= now()
+              AND retry_count <= ?
+            ORDER BY retry_time
+            LIMIT ?
+            FOR UPDATE SKIP LOCKED
+        )
+        RETURNING *
         """;
 
     private static final String SQL_MARK_SUCCESS = """
@@ -57,10 +57,18 @@ public class OutboxEventJdbcAdapter implements OutboxEventRepository {
         WHERE event_id = ?
         """;
 
-    private static final String SQL_UPDATE_EVENT = """
+    private static final String SQL_MARK_FAILURE = """
         UPDATE outbox_event
-        SET status = ?, retry_count = ?
+        SET status      = ?,
+            retry_count = ?
         WHERE event_id = ?
+        """;
+
+    private static final String SQL_RESET_STUCK = """
+        UPDATE outbox_event
+        SET status = 'NEW'
+        WHERE status = 'IN_PROGRESS'
+          AND retry_time < now() - (? * interval '1 second')
         """;
 
     @Override
@@ -90,14 +98,13 @@ public class OutboxEventJdbcAdapter implements OutboxEventRepository {
                 })
                 .toList();
 
-        jdbcTemplate.batchUpdate(SQL_INSERT_BATCH, args);
+        jdbcTemplate.batchUpdate(SQL_INSERT_EVENT, args);
     }
 
     @Override
     @Transactional
     public List<OutboxEvent> claimBatch(int batchSize) {
-        return jdbcTemplate.query(
-                SQL_CLAIM_BATCH, rowMapper, EventStatus.NEW.name(), properties.getMaxRetry(), batchSize);
+        return jdbcTemplate.query(SQL_CLAIM_BATCH, rowMapper, properties.getMaxRetry(), batchSize);
     }
 
     @Override
@@ -112,7 +119,7 @@ public class OutboxEventJdbcAdapter implements OutboxEventRepository {
     @Transactional
     public void markRetry(EventId eventId, int currentRetryCount, int maxRetry) {
         if (currentRetryCount >= maxRetry) {
-            jdbcTemplate.update(SQL_UPDATE_EVENT, EventStatus.FAILURE.name(), currentRetryCount, eventId.id());
+            jdbcTemplate.update(SQL_MARK_FAILURE, EventStatus.FAILURE.name(), currentRetryCount, eventId.id());
             return;
         }
 
@@ -121,7 +128,11 @@ public class OutboxEventJdbcAdapter implements OutboxEventRepository {
         jdbcTemplate.update(SQL_MARK_RETRY, currentRetryCount + 1, nextRetry, EventStatus.NEW.name(), eventId.id());
     }
 
-    // calculate backoff exponential
+    @Transactional
+    public void resetStuck(long stuckAfterSeconds) {
+        jdbcTemplate.update(SQL_RESET_STUCK, stuckAfterSeconds);
+    }
+
     private long retryBackoff(int retryCount) {
         return 10L * (1L << retryCount);
     }
