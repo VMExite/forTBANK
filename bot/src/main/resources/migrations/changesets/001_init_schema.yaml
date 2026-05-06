@@ -1,0 +1,28 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001
+      author: vexi
+      changes:
+        - createTable:
+            tableName: link_update
+            columns:
+              - column:
+                  name: link_update_id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: link_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: chat_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+        - addUniqueConstraint:
+            constraintName: unq_link_chat
+            tableName: link_update
+            columnNames: link_id, chat_id

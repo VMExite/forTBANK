@@ -109,6 +109,7 @@ public class LinkUpdateScheduler {
                     Link link = entry.getKey();
                     return entry.getValue().stream().map(chatId -> {
                         LinkUpdateMessage msg = new LinkUpdateMessage(
+                                null,
                                 chatId.value(),
                                 link.getLinkId().value(),
                                 "Failed process link",

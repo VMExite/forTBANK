@@ -5,12 +5,25 @@ grpc:
     port: 9091
 
 spring:
+  application:
+    name: bot
+
+  datasource:
+    url: ${BOT_DATASOURCE_URL}
+    username: ${DATASOURCE_USER}
+    password: ${DATASOURCE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  liquibase:
+    enabled: true
+    change-log: classpath:/migrations/master.yaml
+    url: ${BOT_DATASOURCE_URL}
+    user: ${DATASOURCE_USER}
+    password: ${DATASOURCE_PASSWORD}
+
   devtools:
     restart:
       enabled: false
-
-  application:
-    name: bot
   config:
     import: optional:file:.env[.properties]
   messages:

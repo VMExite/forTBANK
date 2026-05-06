@@ -35,6 +35,7 @@ public class LinkExecutorHandler {
         return events.stream()
                 .flatMap(event -> chatIds.stream()
                         .map(chatId -> new LinkUpdateMessage(
+                                event.eventId(),
                                 chatId.value(),
                                 event.linkId(),
                                 event.title(),

@@ -1,7 +1,11 @@
 package backend.academy.linktracker.bot.consumer;
 
 import backend.academy.linktracker.bot.dto.LinkUpdateMessage;
+import backend.academy.linktracker.bot.exception.NotificationFailedException;
+import backend.academy.linktracker.bot.exception.RetryableException;
 import backend.academy.linktracker.bot.mapper.AvroMapper;
+import backend.academy.linktracker.bot.model.LinkUpdate;
+import backend.academy.linktracker.bot.repository.LinkUpdateRepository;
 import backend.academy.linktracker.bot.service.UpdateNotificationService;
 import backend.academy.linktracker.dto.kafka.LinkUpdateAvroMessage;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +19,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 // kafka consumer
 public class UpdateKafkaConsumer {
+    private final LinkUpdateRepository linkUpdateRepository;
     private final UpdateNotificationService updateNotificationService;
     private final AvroMapper avroMapper;
 
@@ -28,11 +33,22 @@ public class UpdateKafkaConsumer {
                 consumerRecord.value().getClass().getName());
         if (consumerRecord.value() == null) {
             log.error("Deserialization failed");
-
             return;
         }
+
         LinkUpdateMessage message = avroMapper.fromAvro(consumerRecord.value());
+
+        if (linkUpdateRepository.existsByEventId(message.eventId())) {
+            log.warn("Link get more than once, but not processed");
+            return;
+        }
+
         log.debug("Consumer consume the message: {}", consumerRecord.value());
-        updateNotificationService.notifyUsers(message);
+        try {
+            updateNotificationService.notifyUsers(message);
+            linkUpdateRepository.save(new LinkUpdate(message.eventId()));
+        } catch (NotificationFailedException _) {
+            throw new RetryableException("Notification to tg failed");
+        }
     }
 }

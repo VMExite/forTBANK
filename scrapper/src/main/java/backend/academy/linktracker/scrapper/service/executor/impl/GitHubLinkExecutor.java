@@ -28,6 +28,7 @@ public final class GitHubLinkExecutor extends AbstractLinkExecutor {
                     .sorted(Comparator.comparing(GitHubIssueResponse::createdAt))
                     .map(issue -> new LinkUpdateMessage(
                             null,
+                            null,
                             link.getLinkId().value(),
                             issue.title(),
                             issue.user().login(),

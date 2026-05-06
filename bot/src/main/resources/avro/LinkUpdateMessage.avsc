@@ -4,6 +4,10 @@
     "namespace": "backend.academy.linktracker.dto.kafka",
     "fields": [
         {
+            "name": "eventId",
+            "type": "long"
+        },
+        {
             "name": "chatId",
             "type": "long"
         },

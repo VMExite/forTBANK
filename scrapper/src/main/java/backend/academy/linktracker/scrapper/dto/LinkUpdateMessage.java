@@ -3,6 +3,7 @@ package backend.academy.linktracker.scrapper.dto;
 import java.time.OffsetDateTime;
 
 public record LinkUpdateMessage(
+        Long eventId,
         Long chatId,
         Long linkId,
         String title,

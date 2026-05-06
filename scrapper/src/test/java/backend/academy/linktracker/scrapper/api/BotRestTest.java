@@ -29,7 +29,7 @@ class BotRestTest {
     private HttpMessageSender sender;
 
     private static final LinkUpdateMessage REQUEST =
-            new LinkUpdateMessage(1L, 1L, "test", "user", "test preview", "http:example.com", OffsetDateTime.now());
+            new LinkUpdateMessage(1L, 1L, 1L, "test", "user", "test preview", "http:example.com", OffsetDateTime.now());
 
     @DynamicPropertySource
     static void dynamicProperties(DynamicPropertyRegistry registry) {

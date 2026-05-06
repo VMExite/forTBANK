@@ -43,6 +43,7 @@ public final class StackoverflowLinkExecutor extends AbstractLinkExecutor {
             for (StackOverflowAnswerResponse answer : answers) {
                 result.add(new LinkUpdateMessage(
                         null,
+                        null,
                         link.getLinkId().value(),
                         question.title(),
                         answer.owner().displayName(),
@@ -61,6 +62,7 @@ public final class StackoverflowLinkExecutor extends AbstractLinkExecutor {
                 for (StackOverflowCommentResponse comment : answerComments) {
                     result.add(new LinkUpdateMessage(
                             null,
+                            null,
                             link.getLinkId().value(),
                             question.title(),
                             comment.owner().displayName(),
@@ -76,6 +78,7 @@ public final class StackoverflowLinkExecutor extends AbstractLinkExecutor {
 
             for (StackOverflowCommentResponse comment : questionComments) {
                 result.add(new LinkUpdateMessage(
+                        null,
                         null,
                         link.getLinkId().value(),
                         question.title(),

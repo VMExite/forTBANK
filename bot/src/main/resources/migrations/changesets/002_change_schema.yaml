@@ -1,0 +1,19 @@
+databaseChangeLog:
+#  more simply version of v1 schema
+  - changeSet:
+      id: 002
+      author: vexi
+      changes:
+        - dropTable:
+            tableName: link_update
+            cascadeConstraints: true
+
+        - createTable:
+            tableName: link_update
+            columns:
+              - column:
+                  name: event_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    primaryKey: true

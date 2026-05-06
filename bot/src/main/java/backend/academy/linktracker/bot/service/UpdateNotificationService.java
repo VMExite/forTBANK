@@ -1,6 +1,7 @@
 package backend.academy.linktracker.bot.service;
 
 import backend.academy.linktracker.bot.dto.LinkUpdateMessage;
+import backend.academy.linktracker.bot.exception.NotificationFailedException;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.request.SendMessage;
 import lombok.RequiredArgsConstructor;
@@ -14,15 +15,20 @@ public class UpdateNotificationService {
     private final TelegramBot bot;
     private final LocalisationService localisationService;
 
-    public void notifyUsers(LinkUpdateMessage update) {
+    public void notifyUsers(LinkUpdateMessage update) throws NotificationFailedException {
         if (update == null || update.chatId() == null) {
             return;
         }
 
         String text = buildMessage(update);
 
-        bot.execute(new SendMessage(update.chatId(), text));
-        log.info("update_sent url={} for chat={}", update.url(), update.chatId());
+        try {
+            bot.execute(new SendMessage(update.chatId(), text));
+            log.info("update_sent url={} for chat={}", update.url(), update.chatId());
+        } catch (Exception e) {
+            log.error("update_sent url={} for chat={}", update.url(), update.chatId(), e);
+            throw new NotificationFailedException("tg notification failed");
+        }
     }
 
     private String buildMessage(LinkUpdateMessage update) {
