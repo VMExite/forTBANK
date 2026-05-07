@@ -10,10 +10,10 @@ spring:
       driver-class-name: org.postgresql.Driver
     liquibase:
       enabled: true
-      change-log: classpath:/migrations/master.xml
       url: jdbc:tc:postgresql:16:///testdb
-      user: test
       password: test
+      user: test
+      change-log: classpath:/db/changelog/db.changelog-master.xml
 
     kafka:
       producer:
@@ -46,3 +46,4 @@ app:
     base-url: http://localhost:8101
     key: test
     access-token: test
+debug: false

@@ -1,4 +1,16 @@
 spring:
+  datasource:
+    url: jdbc:tc:postgresql:16:///testdb
+    username: test
+    password: test
+    driver-class-name: org.postgresql.Driver
+  liquibase:
+    enabled: true
+    change-log: classpath:/migrations/master.yaml
+    url: jdbc:tc:postgresql:16:///testdb
+    user: test
+    password: test
+
   kafka:
     producer:
       key-serializer: org.apache.kafka.common.serialization.LongSerializer
@@ -12,7 +24,7 @@ spring:
 
 app:
   telegram:
-    url: ${wiremock.server.baseUrl}/bot
+    url: http://test.url
     token: test-token
     update-listener-sleep: 1s
     debug: true
