@@ -45,6 +45,10 @@ public abstract class DataBaseTests {
         registry.add("spring.datasource.password", POSTGRES::getPassword);
         registry.add("spring.datasource.username", POSTGRES::getUsername);
         registry.add("spring.datasource.driver-class-name", POSTGRES::getDriverClassName);
+
+        registry.add("app.message-sending-type", () -> "REST");
+        registry.add("spring.autoconfigure.exclude",
+            () -> "org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration");
     }
 
     @Autowired

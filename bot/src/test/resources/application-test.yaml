@@ -11,20 +11,14 @@ spring:
     user: test
     password: test
 
-  kafka:
-    producer:
-      key-serializer: org.apache.kafka.common.serialization.LongSerializer
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
-
-    consumer:
-      key-deserializer: org.apache.kafka.common.serialization.LongDeserializer
-      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
-      properties:
-        spring.json.trusted.packages: "*"
-
 app:
   telegram:
     url: http://test.url
     token: test-token
     update-listener-sleep: 1s
     debug: true
+  kafka:
+    link-update-topic: linkUpdateEvent
+    link-update-topic-dlt: linkUpdateEvent-dlt
+    retry-interval: 100
+    retry-max-attempts: 1

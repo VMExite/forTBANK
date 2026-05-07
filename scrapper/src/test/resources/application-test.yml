@@ -3,31 +3,22 @@ grpc:
     port: -1
 
 spring:
-    datasource:
-      url: jdbc:tc:postgresql:16:///testdb
-      username: test
-      password: test
-      driver-class-name: org.postgresql.Driver
-    liquibase:
-      enabled: true
-      url: jdbc:tc:postgresql:16:///testdb
-      password: test
-      user: test
-      change-log: classpath:/db/changelog/db.changelog-master.xml
-
-    kafka:
-      producer:
-        key-serializer: org.apache.kafka.common.serialization.LongSerializer
-        value-serializer: io.confluent.kafka.serializers.KafkaAvroSerializer
-      admin:
-        properties:
-          default.replication.factor: 1
+  datasource:
+    url: jdbc:tc:postgresql:16:///testdb
+    username: test
+    password: test
+    driver-class-name: org.postgresql.Driver
+  liquibase:
+    enabled: true
+    url: jdbc:tc:postgresql:16:///testdb
+    password: test
+    user: test
+    change-log: classpath:/migrations/master.xml
 
 
-    jpa:
-      hibernate:
-        ddl-auto: validate
-
+  jpa:
+    hibernate:
+      ddl-auto: validate
 
 app:
   kafka:

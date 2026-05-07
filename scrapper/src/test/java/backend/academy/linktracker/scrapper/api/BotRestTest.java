@@ -16,6 +16,7 @@ import java.time.OffsetDateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.web.client.RestClient;
@@ -24,6 +25,7 @@ import org.springframework.web.client.support.RestClientAdapter;
 import org.springframework.web.service.invoker.HttpServiceProxyFactory;
 
 @WireMockTest(httpPort = 0)
+@ActiveProfiles("test")
 class BotRestTest {
 
     private HttpMessageSender sender;
@@ -34,6 +36,8 @@ class BotRestTest {
     @DynamicPropertySource
     static void dynamicProperties(DynamicPropertyRegistry registry) {
         registry.add("app.message-sending-type", () -> "REST");
+        registry.add("spring.autoconfigure.exclude",
+            () -> "org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration");
     }
 
     @BeforeEach
