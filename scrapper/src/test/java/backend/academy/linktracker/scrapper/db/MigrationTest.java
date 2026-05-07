@@ -40,8 +40,9 @@ class MigrationTest {
         registry.add("spring.datasource.password", POSTGRES::getPassword);
 
         registry.add("app.message-sending-type", () -> "REST");
-        registry.add("spring.autoconfigure.exclude",
-            () -> "org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration");
+        registry.add(
+                "spring.autoconfigure.exclude",
+                () -> "org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration");
     }
 
     @Autowired

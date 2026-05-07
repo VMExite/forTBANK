@@ -36,8 +36,9 @@ class BotRestTest {
     @DynamicPropertySource
     static void dynamicProperties(DynamicPropertyRegistry registry) {
         registry.add("app.message-sending-type", () -> "REST");
-        registry.add("spring.autoconfigure.exclude",
-            () -> "org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration");
+        registry.add(
+                "spring.autoconfigure.exclude",
+                () -> "org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration");
     }
 
     @BeforeEach
