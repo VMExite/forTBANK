@@ -26,17 +26,18 @@ public class UpdateKafkaConsumer {
 
     @KafkaListener(topics = "${app.kafka.link-update-topic}", groupId = "${spring.kafka.consumer.group-id}")
     public void consume(ConsumerRecord<Long, LinkUpdateAvroMessage> consumerRecord, Acknowledgment ack) {
+        log.info(
+                "RECEIVED topic={}, key={}, value={} class={}",
+                consumerRecord.topic(),
+                consumerRecord.key(),
+                consumerRecord.value(),
+                consumerRecord.value().getClass().getName());
+
+        LinkUpdateMessage message = avroMapper.fromAvro(consumerRecord.value());
         if (consumerRecord.value() == null) {
             log.error("Deserialization failed");
             return;
         }
-        log.info(
-            "RECEIVED topic={}, key={}, value={} class={}",
-            consumerRecord.topic(),
-            consumerRecord.key(),
-            consumerRecord.value(),
-            consumerRecord.value().getClass().getName());
-        LinkUpdateMessage message = avroMapper.fromAvro(consumerRecord.value());
 
         if (linkUpdateRepository.existsByEventId(message.eventId())) {
             log.warn("Link get more than once, but not processed");
