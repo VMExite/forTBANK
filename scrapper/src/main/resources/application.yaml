@@ -9,6 +9,22 @@ spring:
     restart:
       enabled: false
 
+  cache:
+    type: redis
+
+  data:
+    redis:
+      password: ${VALKEY_PASSWORD}
+
+      cluster:
+        nodes:
+          - localhost:7000
+          - localhost:7001
+          - localhost:7002
+          - localhost:7003
+          - localhost:7004
+          - localhost:7005
+
   datasource:
     url: ${SCRAPPER_DATASOURCE_URL}
     username: ${DATASOURCE_USER}
@@ -58,6 +74,10 @@ app:
     max-retry: 5
     termination-await-millis: 90000
     threads: 4
+
+  cache:
+    tll: 600
+
   kafka:
     topic-link-update: linkUpdateEvent
     partitions: 3

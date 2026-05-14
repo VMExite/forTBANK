@@ -16,6 +16,8 @@ import backend.academy.linktracker.scrapper.service.crud.LinksService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,11 +26,13 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class LinksServiceImpl implements LinksService {
+
     private final ChatRepository chatRepository;
     private final LinkMapper linkMapper;
 
     @Override
-    public ListLinkResponse getLinks(Long chatId) throws IllegalArgumentException, ChatNotExistsException {
+    @Cacheable(value = "links", key = "#chatId")
+    public ListLinkResponse getLinks(Long chatId) {
         if (chatId == null) {
             throw new IllegalArgumentException();
         }
@@ -42,8 +46,8 @@ public class LinksServiceImpl implements LinksService {
 
     @Override
     @Transactional
-    public LinkResponse createLink(Long chatId, AddLinkRequest request)
-            throws IllegalArgumentException, ChatNotExistsException, LinkAlreadyTracked {
+    @CacheEvict(value = "links", key = "#chatId")
+    public LinkResponse createLink(Long chatId, AddLinkRequest request) {
         if (chatId == null || request == null) {
             throw new IllegalArgumentException();
         }
@@ -54,7 +58,6 @@ public class LinksServiceImpl implements LinksService {
 
         Link link = linkMapper.fromAddRequest(request);
         chat.addLink(link);
-
         chatRepository.save(chat);
         log.info("Link {} created", link.getLinkId());
         return linkMapper.toResponse(link);
@@ -62,18 +65,21 @@ public class LinksServiceImpl implements LinksService {
 
     @Override
     @Transactional
-    public LinkResponse removeLink(Long chatId, RemoveLinkRequest request)
-            throws IllegalArgumentException, ChatNotExistsException, LinkNotFoundException {
+    @CacheEvict(value = "links", key = "#chatId")
+    public LinkResponse removeLink(Long chatId, RemoveLinkRequest request) {
+
         if (chatId == null || request == null) {
             throw new IllegalArgumentException();
         }
+
         Chat chat = chatRepository.findById(new ChatId(chatId)).orElseThrow(ChatNotExistsException::new);
-
         Link link = chat.findLinkByUrl(request.link()).orElseThrow(LinkNotFoundException::new);
-        chat.removeLink(link);
 
+        chat.removeLink(link);
         chatRepository.save(chat);
+
         log.info("Link {} removed", link.getLinkId());
+
         return linkMapper.toResponse(link);
     }
 }

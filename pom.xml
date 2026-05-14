@@ -214,6 +214,11 @@
                 <artifactId>mapstruct-processor</artifactId>
                 <version>${mapstruct.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.checkerframework</groupId>
+                <artifactId>checker-qual</artifactId>
+                <version>3.52.0</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
