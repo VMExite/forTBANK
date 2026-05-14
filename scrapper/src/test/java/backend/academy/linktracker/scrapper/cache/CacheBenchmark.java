@@ -8,22 +8,20 @@ import backend.academy.linktracker.scrapper.model.Link;
 import backend.academy.linktracker.scrapper.model.value.ChatId;
 import backend.academy.linktracker.scrapper.repository.ChatRepository;
 import backend.academy.linktracker.scrapper.service.crud.LinksService;
+import backend.academy.linktracker.scrapper.service.crud.impl.LinksServiceImpl;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import backend.academy.linktracker.scrapper.service.crud.impl.LinksServiceImpl;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
-import org.springframework.cache.CacheManager;
-import org.springframework.context.ConfigurableApplicationContext;
-
 import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
 
 @BenchmarkMode({Mode.Throughput, Mode.AverageTime})
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
@@ -47,8 +45,8 @@ public class CacheBenchmark {
     public void setup() {
 
         context = new SpringApplicationBuilder(TestConfig.class)
-            .web(WebApplicationType.NONE)
-            .run();
+                .web(WebApplicationType.NONE)
+                .run();
 
         linksService = context.getBean(LinksService.class);
         chatRepository = context.getBean(ChatRepository.class);
@@ -56,8 +54,7 @@ public class CacheBenchmark {
 
         Chat chat = buildChat(BASE_CHAT_ID, 20);
 
-        when(chatRepository.findById(new ChatId(BASE_CHAT_ID)))
-            .thenReturn(Optional.of(chat));
+        when(chatRepository.findById(new ChatId(BASE_CHAT_ID))).thenReturn(Optional.of(chat));
 
         linksService.getLinks(BASE_CHAT_ID);
     }
@@ -82,8 +79,7 @@ public class CacheBenchmark {
 
         Chat chat = buildChat(id, 20);
 
-        when(chatRepository.findById(new ChatId(id)))
-            .thenReturn(Optional.of(chat));
+        when(chatRepository.findById(new ChatId(id))).thenReturn(Optional.of(chat));
 
         bh.consume(linksService.getLinks(id));
 
@@ -92,15 +88,10 @@ public class CacheBenchmark {
 
     private Chat buildChat(long chatId, int linksCount) {
 
-        Chat chat = Chat.builder()
-            .chatId(new ChatId(chatId))
-            .build();
+        Chat chat = Chat.builder().chatId(new ChatId(chatId)).build();
 
         for (int i = 0; i < linksCount; i++) {
-            chat.addLink(
-                Link.builder()
-                    .url("https://example.com/" + i)
-                    .build());
+            chat.addLink(Link.builder().url("https://example.com/" + i).build());
         }
 
         return chat;
@@ -122,10 +113,7 @@ public class CacheBenchmark {
 
         @Bean
         public LinksService linksService(
-            ChatRepository chatRepository,
-            LinkMapper linkMapper,
-            CacheManager cacheManager
-        ) {
+                ChatRepository chatRepository, LinkMapper linkMapper, CacheManager cacheManager) {
             return new LinksServiceImpl(chatRepository, linkMapper);
         }
     }
