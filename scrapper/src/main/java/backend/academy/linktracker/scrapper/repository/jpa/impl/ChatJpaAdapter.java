@@ -10,7 +10,6 @@ import backend.academy.linktracker.scrapper.model.value.LinkId;
 import backend.academy.linktracker.scrapper.repository.ChatRepository;
 import backend.academy.linktracker.scrapper.repository.jpa.ChatJpaRepository;
 import backend.academy.linktracker.scrapper.repository.jpa.LinkJpaRepository;
-import backend.academy.linktracker.scrapper.repository.jpa.TagJpaRepository;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -30,10 +29,10 @@ public class ChatJpaAdapter implements ChatRepository {
 
     private final ChatJpaRepository chatJpaRepository;
     private final LinkJpaRepository linkJpaRepository;
-    private final TagJpaRepository tagJpaRepository;
     private final ChatMapper chatMapper;
 
     @Override
+    @Transactional
     public Optional<Chat> findById(ChatId id) {
         return chatJpaRepository.findWithGraphByChatId(id.value()).map(chatMapper::fromEntity);
     }

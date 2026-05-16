@@ -25,7 +25,7 @@ public class CacheConfig {
                         RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
                 .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(
                         new GenericJacksonJsonRedisSerializer(objectMapper)))
-                .entryTtl(Duration.ofSeconds(redisCacheProperties.getTll()))
+                .entryTtl(Duration.ofSeconds(redisCacheProperties.getTtl()))
                 .disableCachingNullValues();
     }
 }

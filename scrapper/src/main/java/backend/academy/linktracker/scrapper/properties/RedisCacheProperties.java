@@ -18,5 +18,5 @@ import org.springframework.validation.annotation.Validated;
 public class RedisCacheProperties {
     @Min(1)
     @Max(10_000)
-    private Integer tll;
+    private Integer ttl;
 }

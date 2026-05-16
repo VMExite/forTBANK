@@ -76,7 +76,7 @@ app:
     threads: 4
 
   cache:
-    tll: 600
+    ttl: 600
 
   kafka:
     topic-link-update: linkUpdateEvent

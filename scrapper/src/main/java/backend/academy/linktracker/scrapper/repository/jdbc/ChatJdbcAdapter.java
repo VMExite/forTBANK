@@ -87,10 +87,13 @@ public class ChatJdbcAdapter implements ChatRepository {
         """;
 
     @Override
+    @Transactional
     public Optional<Chat> findById(ChatId id) {
         SqlParameterSource params = new MapSqlParameterSource().addValue("chatId", id.value());
 
-        return Optional.ofNullable(jdbcTemplate.query(SELECT_CHAT_BY_ID, params, chatRowMapper));
+        Chat chat = jdbcTemplate.query(SELECT_CHAT_BY_ID, params, chatRowMapper);
+
+        return Optional.ofNullable(chat);
     }
 
     @Override

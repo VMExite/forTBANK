@@ -1,12 +1,18 @@
 package backend.academy.linktracker.scrapper.db.impl;
 
 import backend.academy.linktracker.scrapper.db.DataBaseTests;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
+import backend.academy.linktracker.scrapper.repository.ChatRepository;
+import backend.academy.linktracker.scrapper.repository.jpa.impl.ChatJpaAdapter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.TestPropertySource;
 
-public class OrmDataBaseTest extends DataBaseTests {
-    @DynamicPropertySource
-    static void dynamicProperties(DynamicPropertyRegistry registry) {
-        registry.add("app.access-type", () -> "ORM");
+@TestPropertySource(properties = "app.access-type=ORM")
+class OrmDataBaseTest extends DataBaseTests {
+    @Autowired
+    private ChatJpaAdapter chatJpaAdapter;
+
+    @Override
+    protected ChatRepository chatRepository() {
+        return chatJpaAdapter;
     }
 }

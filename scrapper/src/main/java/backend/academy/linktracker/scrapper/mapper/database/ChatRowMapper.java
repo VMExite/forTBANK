@@ -27,7 +27,10 @@ public final class ChatRowMapper implements ResultSetExtractor<Chat> {
 
         while (rs.next()) {
             if (chat == null) {
-                chat = Chat.builder().chatId(new ChatId(rs.getLong("chat_id"))).build();
+                chat = Chat.builder()
+                        .chatId(new ChatId(rs.getLong("chat_id")))
+                        .links(new HashSet<>())
+                        .build();
             }
             Long linkId = rs.getLong("link_id");
             if (!rs.wasNull()) {

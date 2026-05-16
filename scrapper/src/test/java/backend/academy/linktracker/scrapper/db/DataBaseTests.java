@@ -13,9 +13,9 @@ import backend.academy.linktracker.scrapper.model.value.LinkId;
 import backend.academy.linktracker.scrapper.repository.ChatRepository;
 import java.util.HashSet;
 import java.util.Set;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.test.context.ActiveProfiles;
@@ -26,6 +26,7 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 
+@Slf4j
 @SpringBootTest
 @Testcontainers
 @ActiveProfiles("test")
@@ -52,9 +53,6 @@ public abstract class DataBaseTests {
                 () -> "org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration");
     }
 
-    @Autowired
-    private ChatRepository chatRepository;
-
     private Chat chatWithoutLink;
     private Chat chatWithLink;
     private Link link;
@@ -78,17 +76,17 @@ public abstract class DataBaseTests {
     public void testGreenAddLink() {
         chatWithoutLink.addLink(link);
 
-        Chat result = chatRepository.save(chatWithoutLink);
+        Chat result = chatRepository().save(chatWithoutLink);
 
         assertFalse(result.getLinks().isEmpty());
     }
 
     @Test
     public void testGreenDeleteLink() {
-        chatRepository.save(chatWithLink);
+        chatRepository().save(chatWithLink);
 
         chatWithLink.removeLink(link);
-        Chat result = chatRepository.save(chatWithLink);
+        Chat result = chatRepository().save(chatWithLink);
 
         assertTrue(result.getLinks().isEmpty());
         assertEquals(0, result.getLinks().size());
@@ -96,8 +94,10 @@ public abstract class DataBaseTests {
 
     @Test
     public void testThrowAddDubleLink() {
-        chatRepository.save(chatWithLink);
+        chatRepository().save(chatWithLink);
 
         assertThrows(LinkAlreadyTracked.class, () -> chatWithLink.addLink(link));
     }
+
+    protected abstract ChatRepository chatRepository();
 }

@@ -20,6 +20,7 @@ public class LinkUpdateServiceImpl implements LinkUpdateService {
     private final LinkRepository linkRepository;
 
     @Override
+    @Transactional
     public List<Link> getBatch(int size, OffsetDateTime before) {
         log.info("batch requested: size={}", size);
         return linkRepository.findBatch(size, before);

@@ -23,6 +23,7 @@ public class LinkJpaAdapter implements LinkRepository {
     private final LinkMapper linkMapper;
 
     @Override
+    @Transactional
     public List<Link> findBatch(int size, OffsetDateTime before) {
         Pageable pageable = PageRequest.of(0, size);
         return linkJpaRepository.findBatch(before, pageable).stream()
